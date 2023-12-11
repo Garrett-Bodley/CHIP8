@@ -16,7 +16,7 @@ uint8_t DELAY_TIMER;
 uint8_t SOUND_TIMER;
 
 uint8_t MEMORY[MEM_SIZE];
-uint8_t SCREEN[SCREEN_REGISTER_COUNT];
+uint8_t SCREEN[SCREEN_REGISTER_COUNT]; // Bit packed pixels
 
 typedef struct ROM {
   u_int8_t* buffer;
@@ -64,6 +64,40 @@ ROM load_file(char *path)
   return rom;
 }
 
+void sys_init()
+{
+  uint8_t font[16][5] = {
+    {0xF0, 0x90, 0x90, 0x90, 0xF0}, // 0
+    {0x20, 0x60, 0x20, 0x20, 0x70}, // 1
+    {0xF0, 0x10, 0xF0, 0x80, 0xF0}, // 2
+    {0xF0, 0x10, 0xF0, 0x10, 0xF0}, // 3
+    {0x90, 0x90, 0xF0, 0x10, 0x10}, // 4
+    {0xF0, 0x80, 0xF0, 0x10, 0xF0}, // 5
+    {0xF0, 0x80, 0xF0, 0x90, 0xF0}, // 6
+    {0xF0, 0x10, 0x20, 0x40, 0x40}, // 7
+    {0xF0, 0x90, 0xF0, 0x90, 0xF0}, // 8
+    {0xF0, 0x90, 0xF0, 0x10, 0xF0}, // 9
+    {0xF0, 0x90, 0xF0, 0x90, 0x90}, // A
+    {0xE0, 0x90, 0xE0, 0x90, 0xE0}, // B
+    {0xF0, 0x80, 0x80, 0x80, 0xF0}, // C
+    {0xE0, 0x90, 0x90, 0x90, 0xE0}, // D
+    {0xF0, 0x80, 0xF0, 0x80, 0xF0}, // E
+    {0xF0, 0x80, 0xF0, 0x80, 0x80}  // F
+  };
+
+  int char_count = sizeof(font) / sizeof(font[0]);
+  int byte_count = sizeof(font[0]) / sizeof(font[0][0]);
+  int base_address = 0x050;
+
+  for(int i = 0; i < char_count; i++)
+  {
+    for(int j = 0; j < byte_count; j++)
+    {
+      MEMORY[base_address + (5 * i) + j] = font[i][j];
+    }
+  }
+}
+
 int main(int argc, char* argv[])
 {
   if(argc < 2)
@@ -72,15 +106,27 @@ int main(int argc, char* argv[])
     return 1;
   }
 
+  sys_init();
+
   ROM rom = load_file(argv[1]);
 
-  printf("Rom Length: %zu\n", rom.length);
-  for(int i = 0; i < rom.length; i++){
-    if(i % 16 == 0){ printf("\n"); }
-    if(i % 8 == 0){ printf(" "); }
-    printf("%02x ", rom.buffer[i]);
+  // printf("Rom Length: %zu\n", rom.length);
+  // for(int i = 0; i < rom.length; i++){
+  //   if(i % 16 == 0){ printf("\n"); }
+  //   if(i % 8 == 0){ printf(" "); }
+  //   printf("%02x ", rom.buffer[i]);
+  // }
+  // printf("\n");
+  // return 0;
+
+  for(int i = 0; i < 80; i++)
+  {
+    if(i % 5 == 0 && i != 0)
+    {
+      printf("\n");
+    }
+    printf("%x ", MEMORY[0x50 + i]);
   }
   printf("\n");
-  return 0;
   
 }
