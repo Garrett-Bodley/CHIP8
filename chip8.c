@@ -9,6 +9,7 @@
 
 uint8_t SP;
 uint16_t I;
+uint16_t PC;
 uint8_t REGISTERS[REGISTER_COUNT];
 uint16_t STACK[STACK_SIZE];
 
@@ -22,6 +23,13 @@ typedef struct ROM {
   u_int8_t* buffer;
   size_t length;
 } ROM;
+
+typedef struct Instruction {
+  u_int16_t instruction;
+  u_int8_t first;
+  u_int8_t first_nibble;
+  u_int8_t second;
+} Instruction;
 
 ROM load_file(char *path)
 {
@@ -107,6 +115,21 @@ void sys_init()
   load_font();
 }
 
+void fetch(Instruction* cur, u_int16_t PC, ROM rom)
+{
+  uint8_t first = rom.buffer[PC];
+  uint8_t second = rom.buffer[PC + 1];
+
+  uint8_t first_nibble_mask = 192;
+  uint8_t first_nibble = (first & first_nibble_mask) >> 6;
+  uint16_t instruction = 0 | (first << 8) | second;
+
+  cur->first = first;
+  cur->second = second;
+  cur->first_nibble = first_nibble;
+  cur->instruction = instruction;
+}
+
 int main(int argc, char* argv[])
 {
   if(argc < 2)
@@ -118,6 +141,16 @@ int main(int argc, char* argv[])
   sys_init();
 
   ROM rom = load_file(argv[1]);
+  PC = 0;
+  Instruction cur;
+
+  while(PC < rom.length)
+  {
+    fetch(&cur, PC, rom);
+    printf("%04x\n", cur.instruction);
+    // decode(cur);
+    PC += 2;
+  }
 
   // printf("Rom Length: %zu\n", rom.length);
   // for(int i = 0; i < rom.length; i++){
@@ -128,14 +161,13 @@ int main(int argc, char* argv[])
   // printf("\n");
   // return 0;
 
-  for(int i = 0; i < 80; i++)
-  {
-    if(i % 5 == 0 && i != 0)
-    {
-      printf("\n");
-    }
-    printf("%x ", MEMORY[0x50 + i]);
-  }
-  printf("\n");
-  
+  // for(int i = 0; i < 80; i++)
+  // {
+  //   if(i % 5 == 0 && i != 0)
+  //   {
+  //     printf("\n");
+  //   }
+  //   printf("%x ", MEMORY[0x50 + i]);
+  // }
+  // printf("\n");
 }
