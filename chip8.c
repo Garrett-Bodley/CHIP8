@@ -65,7 +65,7 @@ ROM load_file(char *path)
   return rom;
 }
 
-void sys_init()
+void load_font()
 {
   uint8_t font[16][5] = {
     {0xF0, 0x90, 0x90, 0x90, 0xF0}, // 0
@@ -88,6 +88,9 @@ void sys_init()
 
   int char_count = sizeof(font) / sizeof(font[0]);
   int byte_count = sizeof(font[0]) / sizeof(font[0][0]);
+
+  // Via https://tobiasvl.github.io/blog/write-a-chip-8-emulator/#font :
+  // "For some reason, it’s become popular to put (the font) at 050–09F"
   int base_address = 0x050;
 
   for(int i = 0; i < char_count; i++)
@@ -97,6 +100,11 @@ void sys_init()
       MEMORY[base_address + (5 * i) + j] = font[i][j];
     }
   }
+}
+
+void sys_init()
+{
+  load_font();
 }
 
 int main(int argc, char* argv[])
