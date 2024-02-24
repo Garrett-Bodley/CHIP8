@@ -43,6 +43,8 @@ ROM load_file(char *path)
 
   ROM rom;
   rom.buffer = malloc(file_size);
+  rom.length = file_size;
+
   if (rom.buffer == NULL)
   {
     perror("Memory allocation error");
@@ -59,7 +61,6 @@ ROM load_file(char *path)
     exit(3);
   }
 
-  rom.length = file_size;
   fclose(file);
   return rom;
 }
