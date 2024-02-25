@@ -135,9 +135,69 @@ void fetch(Instruction* cur, u_int16_t PC, ROM rom)
   cur->instruction = instruction;
 }
 
-void decode(Instruction cur)
+void clear_screen()
 {
+  for(int i = 0; i < SCREEN_REGISTER_COUNT; i++)
+  {
+    SCREEN[i] = 0;
+  }
+}
 
+void ret()
+{
+  // 00EE - RET
+  // Return from a subroutine.
+
+  // The interpreter sets the program counter to the address at the top of the stack,
+  // then subtracts 1 from the stack pointer.
+
+  PC = STACK[SP - 1];
+  SP--;
+}
+
+void invalid_instruction(Instruction* cur)
+{
+  perror('Invalid instruction provided');
+  printf("Instruction: %16x\n", cur->instruction);
+  exit(4);
+}
+
+void decode_0x0(Instruction* cur)
+{
+  switch(cur->first)
+  {
+    case 0x00:
+      switch(cur->second)
+      {
+        case 0xe0:
+          clear_screen();
+          break;
+        case 0xee:
+          ret();
+          break;
+        default:
+          invalid_instruction(cur);
+      }
+    default:
+      jump_sys_addr(cur);
+      break;
+
+  }
+}
+
+void decode(Instruction* cur)
+{
+  switch(cur->first_nibble)
+  {
+    case 0x0:
+      decode_0x0(cur);
+      break;
+    case 0x1:
+      jump(cur);
+      break;
+    case 0x2:
+      break;
+  }
 }
 
 int main(int argc, char* argv[])
@@ -158,7 +218,7 @@ int main(int argc, char* argv[])
   {
     fetch(&cur, PC, rom);
     printf("%04x\n", cur.instruction);
-    // decode(cur);
+    decode(&cur);
     PC += 2;
   }
 
