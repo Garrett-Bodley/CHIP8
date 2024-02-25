@@ -120,8 +120,8 @@ void fetch(Instruction* cur, u_int16_t PC, ROM rom)
   uint8_t first = rom.buffer[PC];
   uint8_t second = rom.buffer[PC + 1];
 
-  uint8_t first_nibble_mask = 0xc0;
-  uint8_t first_nibble = (first & first_nibble_mask) >> 6;
+  uint8_t first_nibble_mask = 0xf0;
+  uint8_t first_nibble = (first & first_nibble_mask) >> 4;
   uint16_t instruction = 0 | (first << 8) | second;
 
   cur->first = first;
