@@ -112,6 +112,11 @@ void load_font()
 
 void sys_init()
 {
+  SP = 0;
+  I = 0;
+  PC = 0;
+  DELAY_TIMER = 0;
+  SOUND_TIMER = 0;
   load_font();
 }
 
