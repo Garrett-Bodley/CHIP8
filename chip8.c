@@ -162,6 +162,15 @@ void invalid_instruction(Instruction* cur)
   exit(4);
 }
 
+void JP(Instruction* cur)
+{
+  // 1nnn - JP addr
+  // Jump to location nnn.
+
+  // The interpreter sets the program counter to nnn.
+  PC = cur->instruction & 0x0ff;
+}
+
 void jump_sys_address(cur)
 {
   // Jump to a machine code routine at nnn.
@@ -222,7 +231,7 @@ void decode(Instruction* cur)
       decode_0x0(cur);
       break;
     case 0x1:
-      jump(cur);
+      JP(cur);
       break;
     case 0x2:
       break;
