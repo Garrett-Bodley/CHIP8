@@ -203,6 +203,17 @@ void LD_Vx(Instruction* cur)
   REGISTERS[to_set] = cur->second;
 }
 
+void ADD_Vx(Instruction* cur)
+{
+  // 7xkk - ADD Vx, byte
+  // Set Vx = Vx + kk.
+
+  // Adds the value kk to the value of register Vx, then stores the result in Vx.
+
+  uint8_t to_set = cur->first & 0xf;
+  REGISTERS[to_set] += cur->second;
+}
+
 void decode(Instruction* cur)
 {
   switch(cur->first_nibble)
@@ -218,6 +229,10 @@ void decode(Instruction* cur)
     case 0x6:
       LD_Vx(cur);
       break;
+    case 0x7:
+      ADD_Vx(cur);
+      break;
+
   }
 }
 
