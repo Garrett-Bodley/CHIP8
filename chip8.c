@@ -162,6 +162,14 @@ void invalid_instruction(Instruction* cur)
   exit(4);
 }
 
+void jump_sys_address(cur)
+{
+  // Jump to a machine code routine at nnn.
+
+  // This instruction is only used on the old computers on which Chip-8 was originally implemented.
+  // It is ignored by modern interpreters.
+}
+
 void decode_0x0(Instruction* cur)
 {
   switch(cur->first)
