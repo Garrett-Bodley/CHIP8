@@ -193,6 +193,16 @@ void decode_0x0(Instruction* cur)
   }
 }
 
+void LD_Vx(Instruction* cur)
+{
+  // 6xkk - LD Vx, byte
+  // Set Vx = kk.
+
+  // The interpreter puts the value kk into register Vx.
+  uint8_t to_set = cur->first & 0xf;
+  REGISTERS[to_set] = cur->second;
+}
+
 void decode(Instruction* cur)
 {
   switch(cur->first_nibble)
@@ -204,6 +214,9 @@ void decode(Instruction* cur)
       jump(cur);
       break;
     case 0x2:
+      break;
+    case 0x6:
+      LD_Vx(cur);
       break;
   }
 }
