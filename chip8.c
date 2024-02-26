@@ -168,7 +168,7 @@ void JP(Instruction* cur)
   // Jump to location nnn.
 
   // The interpreter sets the program counter to nnn.
-  PC = cur->instruction & 0x0ff;
+  PC = cur->instruction & 0x0fff;
 }
 
 void jump_sys_address(cur)
