@@ -223,6 +223,15 @@ void ADD_Vx(Instruction* cur)
   REGISTERS[to_set] += cur->second;
 }
 
+void LD_I(Instruction* cur)
+{
+  // Annn - LD I, addr
+  // Set I = nnn.
+
+  // The value of register I is set to nnn.
+  I = cur->instruction & 0x0fff;
+}
+
 void decode(Instruction* cur)
 {
   switch(cur->first_nibble)
@@ -240,6 +249,9 @@ void decode(Instruction* cur)
       break;
     case 0x7:
       ADD_Vx(cur);
+      break;
+    case 0xa:
+      LD_I(cur);
       break;
 
   }
