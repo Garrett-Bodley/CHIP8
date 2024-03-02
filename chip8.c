@@ -89,6 +89,17 @@ void log_screen(){
   }
 }
 
+void log_memory(){
+  for(int i = 0; i < MEM_SIZE; i++)
+  {
+    if(i % 16 == 0 && i > 0){ printf("\n"); }
+    if(i % 16 == 0){ printf("%04x  ", i); }
+    printf("%02x " , MEMORY[i]);
+    if(i % 16 == 7){ printf(" "); }
+  }
+  printf("\n");
+}
+
 void load_font()
 {
   uint8_t font[16][5] = {
@@ -126,7 +137,24 @@ void load_font()
   }
 }
 
-void sys_init()
+void load_rom(ROM* rom)
+{
+  uint16_t base_addr = 0x200;
+  for(int i = 0; i < rom->length; i++)
+  {
+    MEMORY[base_addr + i] = rom->buffer[i];
+  }
+}
+
+void clear_screen()
+{
+  for(int i = 0; i < SCREEN_REGISTER_COUNT; i++)
+  {
+    SCREEN[i] = 0;
+  }
+}
+
+void sys_init(ROM* rom)
 {
   SP = 0;
   I = 0;
@@ -134,10 +162,10 @@ void sys_init()
   DELAY_TIMER = 0;
   SOUND_TIMER = 0;
   load_font();
-
-  for(int i = 0; i < SCREEN_REGISTER_COUNT; i++){
-    SCREEN[i] = 0;
-  }
+  load_rom(rom);
+  log_memory();
+  // exit(1);
+  clear_screen();
 
 }
 
@@ -158,13 +186,6 @@ void fetch(Instruction* cur, ROM rom)
   cur->instruction = instruction;
 }
 
-void clear_screen()
-{
-  for(int i = 0; i < SCREEN_REGISTER_COUNT; i++)
-  {
-    SCREEN[i] = 0;
-  }
-}
 
 void ret()
 {
@@ -192,7 +213,10 @@ void JP(Instruction* cur)
   // Jump to location nnn.
 
   // The interpreter sets the program counter to nnn.
+  // printf("Jump Instruction: %04x\n", cur->instruction);
+  // printf("PC Before: %04x\n", PC);
   PC = cur->instruction & 0x0fff;
+  // printf("PC After: %04x\n", PC);
 }
 
 void jump_sys_addr(Instruction* cur)
@@ -281,6 +305,7 @@ void DRW_Vx_Vy_N(Instruction* cur)
   printf("N: %i\n", N);
   printf("I: %04x\n", I);
   printf("I contents: %02x\n", MEMORY[I]);
+  // Reading sprite from memory for logging purposes
   for(int i = 0; i < N; i++)
   {
     printf("  %02x\n", MEMORY[I + i]);
@@ -299,7 +324,7 @@ void DRW_Vx_Vy_N(Instruction* cur)
     int y_mem_offset = (y + i) * SCREEN_WIDTH / 8;
     int mem_offset = x_mem_offset + y_mem_offset;
     int sprite_word = MEMORY[I + i];
-
+    printf("Sprite word: %02x\n", sprite_word);
     if(shift_offset == 0)
     {
       if(REGISTERS[0xF] == 0)
@@ -312,7 +337,7 @@ void DRW_Vx_Vy_N(Instruction* cur)
       int left_mask = sprite_word >> shift_offset;
       int right_mask = sprite_word << (8 - shift_offset);
 
-      if(x == 63){ right_mask = 0; }
+      if(x > 55){ right_mask = 0; }
       if(REGISTERS[0xF] == 0)
       {
         // What if I'm on the edge of the screen? This will wrap in a flat array
@@ -323,13 +348,13 @@ void DRW_Vx_Vy_N(Instruction* cur)
       SCREEN[mem_offset] ^= left_mask;
       SCREEN[mem_offset + 1] ^= right_mask;
     }
+    // exit(1);
+  }
+
     printf("\n--------------------------------\n");
     printf("VF: %i\n\n", REGISTERS[0xF]);
     log_screen();
     exit(1);
-
-  }
-
   // TODO:
   // Do math to figure out what SCREEN addresses (potentially multiple) I need to write to.
   // Then do some bitwise stuff to figure out if I should set the VF register
@@ -358,8 +383,17 @@ void DRW_Vx_Vy_N(Instruction* cur)
   // }
 }
 
+// void sanity_check()
+// {
+//   int base_addr = 0x022a;
+//   for(int i = 0; i < 15; i++){
+//     MEMORY[base_addr + i] = 0xff;
+//   }
+// }
+
 void decode(Instruction* cur)
 {
+  // puts("decoding");
   switch(cur->first_nibble)
   {
     case 0x0:
@@ -394,16 +428,19 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  sys_init();
-
   ROM rom = load_file(argv[1]);
-  PC = 0;
-  Instruction cur;
+  sys_init(&rom);
 
-  while(PC < rom.length)
+  puts("sys has been init");
+
+  PC = 0x200;
+  Instruction cur;
+  // sanity_check();
+  while(PC < 0x200 + rom.length)
   {
+    puts("inside instruction loop");
     fetch(&cur, rom);
-    // printf("%04x\n", cur.instruction);
+    printf("%04x\n", cur.instruction);
     decode(&cur);
   }
 
