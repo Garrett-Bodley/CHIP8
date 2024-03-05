@@ -20,7 +20,7 @@ TEST_SOURCES := $(wildcard $(TEST_SRC_DIR)/*.c)
 TEST_OBJ := $(TEST_SOURCES:$(TEST_SRC_DIR)/%.c=$(TEST_OBJ_DIR)/%.o)
 TEST_BINS := $(TEST_SOURCES:$(TEST_SRC_DIR)/%.c=$(TEST_BIN_DIR)/%)
 
-all: $(BIN_DIR)/main
+all: $(BIN_DIR)/chip8
 
 which-clang:
 	@echo $(shell echo `realpath $(shell which clang)`)
@@ -44,7 +44,7 @@ $(TEST_BIN_DIR)/%: $(TEST_OBJ_DIR)/%.o $(filter-out $(OBJ_DIR)/main.o, $(OBJ))
 test: $(TEST_BINS)
 	for test_bin in $^; do ./$$test_bin; done
 
-$(BIN_DIR)/main: $(OBJ)
+$(BIN_DIR)/chip8: $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
 .PHONY: clean test
