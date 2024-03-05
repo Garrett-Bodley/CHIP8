@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "../headers/machine.h"
 
 void load_file(char* path, Machine_t* machine)
