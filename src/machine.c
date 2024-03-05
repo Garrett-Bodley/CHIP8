@@ -4,6 +4,10 @@
 #include <string.h>
 #include "../headers/machine.h"
 
+void clear_machine(Machine_t* machine){
+  memset(machine, 0, sizeof(Machine_t));
+}
+
 void load_file(char* path, Machine_t* machine)
 {
   FILE *file;

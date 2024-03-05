@@ -22,4 +22,8 @@ struct Machine_s {
 
 typedef struct Machine_s Machine_t;
 
+void load_file(char* path, Machine_t* machine);
+
+void clear_machine(Machine_t* machine);
+
 #endif
