@@ -34,14 +34,14 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJDIR)
 
 # compilation of test source files
 $(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.c | $(TEST_OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(SRC_DIR) -I -I$(BREW_INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -I$(SRC_DIR) -I$(BREW_INCLUDE) -c $< -o $@
 
-# linking of test binaries, excluding mian.o
+# linking of test binaries, excluding main.o
 $(TEST_BIN_DIR)/%: $(TEST_OBJ_DIR)/%.o $(filter-out $(OBJ_DIR)/main.o, $(OBJ))
 	$(CC) $(CFLAGS) $^ -o $@ -L$(BREW_LIB) -lcriterion
 
 
-test: $(TESTBINS)
+test: $(TEST_BINS)
 	for test_bin in $^; do ./$$test_bin; done
 
 $(BIN_DIR)/main: $(OBJ)
