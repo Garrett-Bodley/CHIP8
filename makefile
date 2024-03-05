@@ -13,31 +13,41 @@ TEST_BIN_DIR=tests/bin
 BREW_INCLUDE=/opt/homebrew/include
 BREW_LIB=/opt/homebrew/lib
 
+SOURCES := $(wildcard $(SRC_DIR)/*.c)
+OBJ := $(SOURCES:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
 TEST_SOURCES := $(wildcard $(TEST_SRC_DIR)/*.c)
 TEST_OBJ := $(TEST_SOURCES:$(TEST_SRC_DIR)/%.c=$(TEST_OBJ_DIR)/%.o)
 TEST_BINS := $(TEST_SOURCES:$(TEST_SRC_DIR)/%.c=$(TEST_BIN_DIR)/%)
 
-SOURCES := $(wildcard $(SRC_DIR)/*.c)
-_OBJ := $(notdir $(SOURCES:.c=.o))
-OBJ := $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
+all: $(BIN_DIR)/main
 
-# TESTS := $(wildcard $(TEST_DIR)/*.c)
-# TESTOBJ = $(filter-out $(OBJ_DIR)/main.o, $(OBJ))
-# TESTBINS := $(patsubst $(TEST_DIR)/%.c, $(TEST_DIR)/bin/%, $(TESTS))
+which-clang:
+	@echo $(shell echo `realpath $(shell which clang)`)
 
-$(SRC_DIR) $(OBJ_DIR) $(BIN_DIR) $(TEST_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR) $(TEST_SRC_DIR):
+$(OBJ_DIR) $(BIN_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR):
 	mkdir -p $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
+# compilation of source files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TESTDIR)/bin/%: $(TEST_DIR)/%.c $(TEST_OBJ) | $(TESTDIR)/bin
-	$(CC) $(CFLAGS) $< $(TEST_OBJ) -o $@ -L$(BREW_LIB) -I$(BREW_INCLUDE) -lcriterion
+# compilation of test source files
+$(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.c | $(TEST_OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(SRC_DIR) -I -I$(BREW_INCLUDE) -c $< -o $@
 
-test: $(TEST_BIN_DIR) $(TESTBINS)
-	for criterion_test in $(TESTBINS); do ./$$criterion_test; done
+# linking of test binaries, excluding mian.o
+$(TEST_BIN_DIR)/%: $(TEST_OBJ_DIR)/%.o $(filter-out $(OBJ_DIR)/main.o, $(OBJ))
+	$(CC) $(CFLAGS) $^ -o $@ -L$(BREW_LIB) -lcriterion
+
+
+test: $(TESTBINS)
+	for test_bin in $^; do ./$$test_bin; done
+
+$(BIN_DIR)/main: $(OBJ)
+	$(CC) $(CFLAGS) $^ -o $@
 
 .PHONY: clean test
 
 clean:
-	rm -rf $(OBJ_DIR)/*.o $(BIN_DIR)/* $(TEST_BIN_DIR)/* $(TEST_OBJ_DIR)/*.o
+	rm -rf $(OBJ_DIR)/*.o $(BIN_DIR)/* $(TEST_OBJ_DIR)/*.o $(TEST_BIN_DIR)/*

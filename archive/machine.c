@@ -33,7 +33,7 @@ union MEMORY {
 
 #ifdef APPLEII
 union MEMORY mem = { .program_struct.program = { 0x00, 0x01 } };
-#else
-union Memory mem;
+// #else
+// union Memory mem;
 #endif
 
