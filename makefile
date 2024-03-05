@@ -47,7 +47,10 @@ test: $(TEST_BINS)
 $(BIN_DIR)/chip8: $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@
 
-.PHONY: clean test
+.PHONY: clean test clean-test
 
 clean:
 	rm -rf $(OBJ_DIR)/*.o $(BIN_DIR)/* $(TEST_OBJ_DIR)/*.o $(TEST_BIN_DIR)/*
+
+clean-test:
+	rm-rf $(TEST_OBJ_DIR)/*.o $(TEST_BIN_DIR)/*
