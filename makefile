@@ -30,7 +30,7 @@ $(OBJ_DIR) $(BIN_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR):
 
 # compilation of source files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(shell sdl2-config --cflags) -c $< -o $@
 
 # compilation of test source files
 $(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.c | $(TEST_OBJ_DIR)
@@ -45,7 +45,7 @@ test: $(TEST_BINS)
 	for test_bin in $^; do ./$$test_bin; done
 
 $(BIN_DIR)/chip8: $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(shell sdl2-config --libs)
 
 .PHONY: clean test clean-test
 
