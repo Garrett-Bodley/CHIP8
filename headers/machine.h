@@ -26,4 +26,6 @@ void load_file(char* path, Machine_t* machine);
 
 void clear_machine(Machine_t* machine);
 
+void load_font(Machine_t* machine);
+
 #endif

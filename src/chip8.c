@@ -4,7 +4,6 @@
 #include <string.h>
 #include "../headers/machine.h"
 #include "../headers/chip8.h"
-#include "../headers/load_file.h"
 
 void log_memory(Machine_t* machine)
 {
@@ -21,7 +20,6 @@ void log_memory(Machine_t* machine)
 void chip8(char* path)
 {
   Machine_t machine;
-  memset(&machine, 0, sizeof(Machine_t));
+  clear_machine(&machine);
   load_file(path, &machine);
-
 }
