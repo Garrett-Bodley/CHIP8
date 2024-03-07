@@ -38,3 +38,11 @@ Test(Instruction, ADD_Vx)
   decode(&instruction, &machine);
   cr_expect(machine.REGISTERS[0xA] == 0x23, "Expected register 0xA to contain value 0x23, found %02X.", machine.REGISTERS[0xA]);
 }
+
+Test(Instruction, LD_I)
+{
+  instruction[0] = 0xA1;
+  instruction[1] = 0x23;
+  decode(&instruction, &machine);
+  cr_assert(machine.I == 0x123, "Expected register I to contain 0x123, found %03X.", machine.I);
+}
