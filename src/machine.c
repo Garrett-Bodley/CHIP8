@@ -73,9 +73,7 @@ void load_font(Machine_t* machine)
 
 void fetch(Machine_t* machine, Instruction_t* instruction)
 {
-  instruction->first = machine->MEMORY[machine->PC];
-  instruction->second = machine->MEMORY[machine->PC + 1];
-  instruction->first_nibble = instruction->first >> 4;
+  memcpy(instruction, &machine->MEMORY[machine->PC], 2);
   machine->PC += 2;
 }
 

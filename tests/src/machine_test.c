@@ -110,9 +110,8 @@ Test(Machine, Fetch)
   Instruction_t instruction;
 
   fetch(&machine, &instruction);
-  cr_expect(instruction.first == 0xAB, "Expected the first byte of the fetched instruction to be 0xAB, got 0x%02X instead.", instruction.first);
-  cr_expect(instruction.second == 0xCD, "Expected the second byte of the fetched instruction to be 0xCD, got 0x%02X instead.", instruction.second);
-  cr_expect(instruction.first_nibble == 0xA, "Expected the first byte of the fetched instruction to be 0xA, got 0x%X instead.", instruction.first_nibble);
+  cr_expect(instruction[0] == 0xAB, "Expected the first byte of the fetched instruction to be 0xAB, got 0x%02X instead.", instruction[0]);
+  cr_expect(instruction[1] == 0xCD, "Expected the second byte of the fetched instruction to be 0xCD, got 0x%02X instead.", instruction[1]);
   cr_expect(machine.PC == 0x202, "Expected SP to be 0x202, got %30X instead.", machine.SP);
 }
 
@@ -125,8 +124,7 @@ Test(Machine, SP_Fetch)
   machine.PC = 0x300;
 
   fetch(&machine, &instruction);
-  cr_expect(instruction.first == 0xAB, "Expected the first byte of the fetched instruction to be 0xAB, got 0x%02X instead.", instruction.first);
-  cr_expect(instruction.second == 0xCD, "Expected the second byte of the fetched instruction to be 0xCD, got 0x%02X instead.", instruction.second);
-  cr_expect(instruction.first_nibble == 0xA, "Expected the first byte of the fetched instruction to be 0xA, got 0x%X instead.", instruction.first_nibble);
+  cr_expect(instruction[0] == 0xAB, "Expected the first byte of the fetched instruction to be 0xAB, got 0x%02X instead.", instruction[0]);
+  cr_expect(instruction[1] == 0xCD, "Expected the second byte of the fetched instruction to be 0xCD, got 0x%02X instead.", instruction[1]);
   cr_expect(machine.PC == 0x302, "Expected SP to be 0x202, got %30X instead.", machine.SP);
 }
