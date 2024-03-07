@@ -26,3 +26,15 @@ Test(Instruction, LD_Vx)
   decode(&instruction, &machine);
   cr_assert(machine.REGISTERS[0xA] == 0x15, "Expected register 0xA to contain value 0x15, found %02X.", machine.REGISTERS[0xA]);
 }
+
+Test(Instruction, ADD_Vx)
+{
+  instruction[0] = 0x7A;
+  instruction[1] = 0x12;
+  decode(&instruction, &machine);
+  cr_expect(machine.REGISTERS[0xA] == 0x12, "Expected register 0xA to contain value 0x12, found %02X.", machine.REGISTERS[0xA]);
+  instruction[0] = 0x7A;
+  instruction[1] = 0x11;
+  decode(&instruction, &machine);
+  cr_expect(machine.REGISTERS[0xA] == 0x23, "Expected register 0xA to contain value 0x23, found %02X.", machine.REGISTERS[0xA]);
+}
