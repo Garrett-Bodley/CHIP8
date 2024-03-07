@@ -18,3 +18,11 @@ Test(Instruction, JP)
   decode(&instruction, &machine);
   cr_assert(machine.PC == 0xFFF, "Expected machine PC to be 0xFFF, got %03X.", machine.PC);
 }
+
+Test(Instruction, LD_Vx)
+{
+  instruction[0] = 0x6a;
+  instruction[1] = 0x15;
+  decode(&instruction, &machine);
+  cr_assert(machine.REGISTERS[0xA] == 0x15, "Expected register 0xA to contain value 0x15, found %02X.", machine.REGISTERS[0xA]);
+}
