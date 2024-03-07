@@ -70,3 +70,18 @@ void load_font(Machine_t* machine)
     machine->MEMORY[base_addr + i] = FONT[i];
   }
 }
+
+void fetch(Machine_t* machine, Instruction_t* instruction)
+{
+  instruction->first = machine->MEMORY[machine->PC];
+  instruction->second = machine->MEMORY[machine->PC + 1];
+  instruction->first_nibble = instruction->first >> 4;
+  machine->PC += 2;
+}
+
+void sys_init(Machine_t* machine)
+{
+  clear_machine(machine);
+  load_font(machine);
+  machine->PC = 0x200;
+}

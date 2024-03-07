@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "./instruction.h"
 
 #ifndef MACHINE_H
 #define MACHINE_H
@@ -27,5 +28,9 @@ void load_file(char* path, Machine_t* machine);
 void clear_machine(Machine_t* machine);
 
 void load_font(Machine_t* machine);
+
+void fetch(Machine_t* machine, Instruction_t* instruction);
+
+void sys_init(Machine_t* machine);
 
 #endif
