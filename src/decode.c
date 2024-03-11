@@ -44,11 +44,44 @@ void LD_I(Machine_t* machine, Instruction_t* instruction)
   machine->I |= (*instruction)[1];
 }
 
-void decode(Instruction_t* instruction, Machine_t* machine)
+void CLS(Machine_t* machine)
+{
+  // 00E0 - CLS
+  // Clear the display.
+  memset(machine->SCREEN->pixels, 0x00, SCREEN_REGISTER_COUNT);
+}
+
+void RET(Machine_t* machine)
+{
+  // 00EE - RET
+  // Return from a subroutine.
+
+  // The interpreter sets the program counter to the address at the top of the stack,
+  // then subtracts 1 from the stack pointer.
+  machine->PC = machine->STACK[machine->SP - 1];
+  machine->SP -= 1;
+}
+
+void decode_0x0(Machine_t* machine, Instruction_t* instruction)
+{
+  switch((*instruction)[1])
+  {
+    case 0xE0:
+      CLS(machine);
+      break;
+    case 0xEE:
+      RET(machine);
+  }
+}
+
+void decode(Machine_t* machine, Instruction_t* instruction)
 {
   uint8_t first_nibble = *instruction[0] >> 4;
   switch(first_nibble)
   {
+    case 0x0:
+      decode_0x0(machine, instruction);
+      break;
     case 0x1:
       JP(machine, instruction);
       break;

@@ -46,3 +46,36 @@ Test(Instruction, LD_I)
   decode(&machine, &instruction);
   cr_assert(machine.I == 0x123, "Expected register I to contain 0x123, found %03X.", machine.I);
 }
+
+Test(Instruction, RET)
+{
+  instruction[0] = 0x00;
+  instruction[1] = 0xEE;
+
+  machine.STACK[0] = 0x123;
+  machine.SP = 1;
+  decode(&machine, &instruction);
+  cr_expect(machine.SP == 0, "Expected SP to be 1, found %i", machine.SP);
+  cr_expect(machine.PC == 0x123, "Expected PC to be 0x123, found %03X.", machine.PC);
+}
+
+Test(Instruction, CLS)
+{
+  // Init SDL Surface
+  SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0 , 64, 32, 1, SDL_PIXELFORMAT_INDEX1MSB);
+  machine.SCREEN = surface;
+  // Fill all bytes with 0xFF
+  memset(surface->pixels, 0xff, SCREEN_REGISTER_COUNT);
+
+  // Decode CLS instruction
+  instruction[0] = 0x00;
+  instruction[1] = 0xE0;
+  decode(&machine, &instruction);
+
+  // Ensure Screen is clear
+  uint8_t* pixels = (uint8_t*)machine.SCREEN->pixels;
+  for(int i = 0; i < SCREEN_REGISTER_COUNT; i++)
+  {
+    cr_expect(pixels[i] == 0x00, "At index %i, expected 0x00, got 0x%02X", i, pixels[i]);
+  }
+}
