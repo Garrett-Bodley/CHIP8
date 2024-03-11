@@ -25,7 +25,7 @@ void chip8(char* path)
 {
   Machine_t machine;
   Instruction_t instruction;
-  clear_machine(&machine);
+  sys_init(&machine);
   load_file(path, &machine);
 
   SDL_Interface_t interface;
@@ -38,6 +38,6 @@ void chip8(char* path)
   {
     fetch(&machine, &instruction);
     decode(&machine, &instruction);
-    sdl_update(&interface);
+    quit = sdl_update(&interface);
   }
 }

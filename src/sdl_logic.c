@@ -26,11 +26,11 @@ bool sdl_update(SDL_Interface_t* interface)
   SDL_Event e;
   while(SDL_PollEvent(&e))
   {
-    if(e.type == SDL_QUIT){ return false; }
+    if(e.type == SDL_QUIT){ return true; }
   }
   SDL_Texture* texture = SDL_CreateTextureFromSurface(interface->renderer, interface->surface);
   SDL_RenderClear(interface->renderer);
   SDL_RenderCopy(interface->renderer, texture, NULL, NULL);
   SDL_RenderPresent(interface->renderer);
-  return true;
+  return false;
 }
