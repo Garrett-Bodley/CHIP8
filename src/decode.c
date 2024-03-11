@@ -8,6 +8,9 @@ void JP(Machine_t* machine, Instruction_t* instruction)
   // Jump to location nnn.
 
   // The interpreter sets the program counter to nnn.
+  #ifdef DEBUG
+  puts("JP");
+  #endif
   machine->PC = (*instruction)[0] & 0x0F;
   machine->PC <<= 8;
   machine->PC |= (*instruction)[1];
@@ -28,6 +31,9 @@ void ADD_Vx(Machine_t* machine, Instruction_t* instruction)
   // Set Vx = Vx + kk.
 
   // Adds the value kk to the value of register Vx, then stores the result in Vx.
+  #ifdef DEBUG
+  puts("ADD_Vx");
+  #endif
   (*instruction)[0] &= 0x0F;
   machine->REGISTERS[(*instruction[0])] += (*instruction)[1];
 }
@@ -38,6 +44,9 @@ void LD_I(Machine_t* machine, Instruction_t* instruction)
   // Set I = nnn.
 
   // The value of register I is set to nnn.
+  #ifdef DEBUG
+  puts("LD_I");
+  #endif
   (*instruction)[0] &= 0x0F;
   machine->I = (*instruction)[0];
   machine->I <<= 8;
@@ -48,6 +57,9 @@ void CLS(Machine_t* machine)
 {
   // 00E0 - CLS
   // Clear the display.
+  #ifdef DEBUG
+  puts("CLS");
+  #endif
   memset(machine->SCREEN->pixels, 0x00, SCREEN_REGISTER_COUNT);
 }
 
@@ -58,12 +70,18 @@ void RET(Machine_t* machine)
 
   // The interpreter sets the program counter to the address at the top of the stack,
   // then subtracts 1 from the stack pointer.
+  #ifdef DEBUG
+  puts("RET");
+  #endif
   machine->PC = machine->STACK[machine->SP - 1];
   machine->SP -= 1;
 }
 
 void decode_0x0(Machine_t* machine, Instruction_t* instruction)
 {
+  #ifdef DEBUG
+  puts ("Decode 0x0");
+  #endif
   switch((*instruction)[1])
   {
     case 0xE0:
@@ -95,6 +113,19 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   uint8_t x = machine->REGISTERS[Vx] & 63;
   uint8_t y = machine->REGISTERS[Vy] & 31;
 
+  #ifdef DEBUG
+  printf("DRW_VX_VY\n");
+  printf("N: %i\n", N);
+  printf("I: %04x\n", machine->I);
+  printf("I contents: %02x\n", machine->MEMORY[machine->I]);
+  // Reading sprite from memory for logging purposes
+  for(int i = 0; i < N; i++)
+  {
+    printf("  %02x\n", machine->MEMORY[machine->I + i]);
+  }
+  printf("\n");
+  #endif
+
   // set VF to 0
   machine->REGISTERS[0xF] = 0;
 
@@ -105,6 +136,10 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
     uint8_t y_mem_offset = (y + i) * 64 / 8;
     uint8_t mem_offset = x_mem_offset + y_mem_offset;
     uint8_t sprite_word = machine->MEMORY[machine->I + i];
+
+    #ifdef DEBUG
+      printf("Sprite word: %02x\n", sprite_word);
+    #endif
 
     if(shift_offset == 0)
     {
@@ -133,6 +168,11 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
 
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
+  #ifdef DEBUG
+    puts("Decoding:");
+    printf("PC: %04x\n", machine->PC);
+    printf("Instruction: %02x%02x\n", (*instruction)[0], (*instruction)[1]);
+  #endif
   uint8_t first_nibble = (*instruction)[0] >> 4;
   switch(first_nibble)
   {

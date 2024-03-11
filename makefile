@@ -1,5 +1,6 @@
 CC = clang
 CFLAGS = -Wall -g
+DFLAGS = -DDEBUG
 
 SRC_DIR=src
 OBJ_DIR=obj
@@ -34,12 +35,11 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJDIR)
 
 # compilation of test source files
 $(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.c | $(TEST_OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(SRC_DIR) -I$(BREW_INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) $(shell sdl2-config --cflags) -I$(SRC_DIR) -I$(BREW_INCLUDE) -c $< -o $@
 
 # linking of test binaries, excluding main.o
 $(TEST_BIN_DIR)/%: $(TEST_OBJ_DIR)/%.o $(filter-out $(OBJ_DIR)/main.o, $(OBJ))
-	$(CC) $(CFLAGS) $^ -o $@ -L$(BREW_LIB) -lcriterion
-
+	$(CC) $(CFLAGS) $(shell sdl2-config --libs) $^ -o $@ -L$(BREW_LIB) -lcriterion
 
 test: $(TEST_BINS)
 	for test_bin in $^; do ./$$test_bin; done
@@ -47,10 +47,17 @@ test: $(TEST_BINS)
 $(BIN_DIR)/chip8: $(OBJ)
 	$(CC) $(CFLAGS) $^ -o $@ $(shell sdl2-config --libs)
 
-.PHONY: clean test clean-test
+debug: CFLAGS += $(DFLAGS)
+debug: all
+
+debug-test: CFLAGS += $(DFLAGS)
+debug-test: test
+
+
+.PHONY: clean clean-test debug debug-test test
 
 clean:
 	rm -rf $(OBJ_DIR)/*.o $(BIN_DIR)/* $(TEST_OBJ_DIR)/*.o $(TEST_BIN_DIR)/*
 
 clean-test:
-	rm-rf $(TEST_OBJ_DIR)/*.o $(TEST_BIN_DIR)/*
+	rm -rf $(TEST_OBJ_DIR)/*.o $(TEST_BIN_DIR)/*

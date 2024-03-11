@@ -27,6 +27,9 @@ void chip8(char* path)
   Instruction_t instruction;
   sys_init(&machine);
   load_file(path, &machine);
+  #ifdef DEBUG
+  log_memory(&machine);
+  #endif
 
   SDL_Interface_t interface;
   init_sdl(&interface);
@@ -37,6 +40,9 @@ void chip8(char* path)
   while(!quit)
   {
     fetch(&machine, &instruction);
+    #ifdef DEBUG
+      printf("Instruction: %02x%02x\n", instruction[0], instruction[1]);
+    #endif
     decode(&machine, &instruction);
     quit = sdl_update(&interface);
   }
