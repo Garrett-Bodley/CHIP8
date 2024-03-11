@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <SDL.h>
 #include "./instruction.h"
 
 #ifndef MACHINE_H
@@ -19,6 +20,8 @@ struct Machine_s {
   uint8_t REGISTERS[REGISTER_COUNT];
   uint16_t STACK[STACK_SIZE];
   uint8_t MEMORY[MEM_SIZE];
+
+  SDL_Surface* SCREEN;
 };
 
 typedef struct Machine_s Machine_t;
