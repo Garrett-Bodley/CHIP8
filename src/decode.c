@@ -74,9 +74,66 @@ void decode_0x0(Machine_t* machine, Instruction_t* instruction)
   }
 }
 
+void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
+{
+  // Dxyn - DRW Vx, Vy, nibble
+  // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+
+  // The interpreter reads n bytes from memory, starting at the address stored in I.
+  // These bytes are then displayed as sprites on screen at coordinates (Vx, Vy).
+  // Sprites are XORed onto the existing screen. If this causes any pixels to be erased,
+  // VF is set to 1, otherwise it is set to 0. If the sprite is positioned so part of it is
+  // outside the coordinates of the display, it wraps around to the opposite side of the screen.
+
+  // See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more
+  // information on the Chip-8 screen and sprites.
+
+  uint8_t Vx = (*instruction)[0] & 0x0F;
+  uint8_t Vy = ((*instruction)[1] & 0xF0) >> 4;
+  uint8_t N = (*instruction)[1] & 0x0F;
+
+  uint8_t x = machine->REGISTERS[Vx] & 63;
+  uint8_t y = machine->REGISTERS[Vy] & 31;
+
+  // set VF to 0
+  machine->REGISTERS[0xF] = 0;
+
+  int x_mem_offset = x / 8; // 8 pixels per word
+  int shift_offset = x & 7; // x % 7
+  for(int i = 0; i < N; i++)
+  {
+    uint8_t y_mem_offset = (y + i) * 64 / 8;
+    uint8_t mem_offset = x_mem_offset + y_mem_offset;
+    uint8_t sprite_word = machine->MEMORY[machine->I + i];
+
+    if(shift_offset == 0)
+    {
+      if(machine->REGISTERS[0xF] == 0)
+      {
+        int mask_res = sprite_word & ((uint8_t*)machine->SCREEN->pixels)[mem_offset];
+        if(mask_res != 0){ machine->REGISTERS[0xF] = 1; }
+      }
+      ((uint8_t*)machine->SCREEN->pixels)[mem_offset] ^= sprite_word;
+    }else{
+      uint8_t left_mask = sprite_word >> shift_offset;
+      uint8_t right_mask = sprite_word << (8 - shift_offset);
+
+      if(x > 55){ right_mask = 0; }
+      if(machine->REGISTERS[0xF] == 0)
+      {
+        uint8_t left_mask_res = left_mask & (((uint8_t*)machine->SCREEN->pixels)[mem_offset] >> shift_offset);
+        uint8_t right_mask_res = right_mask & (((uint8_t*)machine->SCREEN->pixels)[mem_offset + 1] << (8 - shift_offset));
+        if((left_mask_res | right_mask_res) != 0){ machine->REGISTERS[0xF] = 1; }
+      }
+      ((uint8_t*)machine->SCREEN->pixels)[mem_offset] ^= left_mask;
+      ((uint8_t*)machine->SCREEN->pixels)[mem_offset + 1] ^= right_mask;
+    }
+  }
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
-  uint8_t first_nibble = *instruction[0] >> 4;
+  uint8_t first_nibble = (*instruction)[0] >> 4;
   switch(first_nibble)
   {
     case 0x0:
@@ -93,6 +150,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0xA:
       LD_I(machine, instruction);
+      break;
+    case 0xD:
+      DRW_VX_VY(machine, instruction);
       break;
   }
 
