@@ -2,7 +2,7 @@
 #include "../headers/machine.h"
 #include <stdio.h>
 
-void JP(Instruction_t* instruction, Machine_t* machine)
+void JP(Machine_t* machine, Instruction_t* instruction)
 {
   // 1nnn - JP addr
   // Jump to location nnn.
@@ -13,7 +13,7 @@ void JP(Instruction_t* instruction, Machine_t* machine)
   machine->PC |= (*instruction)[1];
 }
 
-void LD_Vx(Instruction_t* instruction, Machine_t* machine)
+void LD_Vx(Machine_t* machine, Instruction_t* instruction)
 {
   // Set Vx = kk.
 
@@ -22,7 +22,7 @@ void LD_Vx(Instruction_t* instruction, Machine_t* machine)
   machine->REGISTERS[(*instruction)[0]] = (*instruction)[1];
 }
 
-void ADD_Vx(Instruction_t* instruction, Machine_t* machine)
+void ADD_Vx(Machine_t* machine, Instruction_t* instruction)
 {
   // 7xkk - ADD Vx, byte
   // Set Vx = Vx + kk.
@@ -32,7 +32,7 @@ void ADD_Vx(Instruction_t* instruction, Machine_t* machine)
   machine->REGISTERS[(*instruction[0])] += (*instruction)[1];
 }
 
-void LD_I(Instruction_t*instruction, Machine_t* machine)
+void LD_I(Machine_t* machine, Instruction_t* instruction)
 {
   // Annn - LD I, addr
   // Set I = nnn.
@@ -50,16 +50,16 @@ void decode(Instruction_t* instruction, Machine_t* machine)
   switch(first_nibble)
   {
     case 0x1:
-      JP(instruction, machine);
+      JP(machine, instruction);
       break;
     case 0x6:
-      LD_Vx(instruction, machine);
+      LD_Vx(machine, instruction);
       break;
     case 0x7:
-      ADD_Vx(instruction, machine);
+      ADD_Vx(machine, instruction);
       break;
     case 0xA:
-      LD_I(instruction, machine);
+      LD_I(machine, instruction);
       break;
   }
 
