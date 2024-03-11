@@ -1,7 +1,9 @@
 {
   "C_Cpp.errorSquiggles": "enabled",
   "files.associations": {
-    "*.h" : "c",
-    "*.c" : "c"
+    "*.h": "c",
+    "*.c": "c",
+    "queue": "c",
+    "stack": "c"
   }
 }
