@@ -50,8 +50,9 @@ which-clang:
 which-shell:
 	@echo $(SHELL)
 
-# Rule to create necessary directories
-$(SRC_DIR) $(SDL_OBJ_DIR) $(SDL_BIN_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR):
+##### Init necessary directories #####
+# --------------------------------------------------------------------------------------------------
+$(SDL_OBJ_DIR) $(SDL_BIN_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR):
 	mkdir -p $@
 
 ##### SDL build process #####
