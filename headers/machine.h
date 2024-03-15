@@ -1,9 +1,12 @@
-#include <stdint.h>
-#include <SDL.h>
-#include "./instruction.h"
-
 #ifndef MACHINE_H
 #define MACHINE_H
+
+#include <stdint.h>
+#include "./instruction.h"
+
+#ifdef SDL
+#include <SDL.h>
+#endif
 
 #define MEM_SIZE 4096
 #define STACK_SIZE 16
@@ -21,7 +24,9 @@ struct Machine_s {
   uint16_t STACK[STACK_SIZE];
   uint8_t MEMORY[MEM_SIZE];
 
+  #ifdef SDL
   SDL_Surface* SCREEN;
+  #endif
 };
 
 typedef struct Machine_s Machine_t;

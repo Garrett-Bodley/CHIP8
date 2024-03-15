@@ -1,13 +1,21 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include <SDL.h>
-#include "../headers/sdl_logic.h"
+
 #include "../headers/machine.h"
 #include "../headers/chip8.h"
 #include "../headers/decode.h"
+
+#ifdef DEBUG
+#include <stdio.h>
+#endif
+
+
+#ifdef SDL
+#include <SDL.h>
+#include "../headers/sdl_logic.h"
+#endif
 
 #ifdef DEBUG
 void log_memory(Machine_t* machine)
@@ -25,11 +33,15 @@ void log_memory(Machine_t* machine)
 
 void chip8(char* path)
 {
-  Machine_t machine;
-  Instruction_t instruction;
+  static Machine_t machine;
+  static Instruction_t instruction;
 
   sys_init(&machine);
+
+  #ifdef SDL
   load_file(path, &machine);
+  #endif
+
   #ifdef DEBUG
   log_memory(&machine);
   #endif
@@ -46,7 +58,7 @@ void chip8(char* path)
   while(!quit)
   {
   #else
-    
+
   #endif
     fetch(&machine, &instruction);
     #ifdef DEBUG

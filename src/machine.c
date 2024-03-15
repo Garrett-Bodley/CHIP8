@@ -1,13 +1,17 @@
-#include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 #include "../headers/machine.h"
+
+#ifdef SDL
+#include <stdlib.h>
+#include <stdio.h>
+#endif
 
 void clear_machine(Machine_t* machine){
   memset(machine, 0, sizeof(Machine_t));
 }
 
+#ifdef SDL
 void load_file(char* path, Machine_t* machine)
 {
   FILE *file;
@@ -42,9 +46,11 @@ void load_file(char* path, Machine_t* machine)
 
   fclose(file);
 }
+#endif
 
 void load_font(Machine_t* machine)
 {
+  int i;
   uint8_t FONT[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -65,7 +71,7 @@ void load_font(Machine_t* machine)
   };
 
   uint8_t base_addr = 0x50;
-  for(int i = 0; i < 80; i++)
+  for(i = 0; i < 80; i++)
   {
     machine->MEMORY[base_addr + i] = FONT[i];
   }

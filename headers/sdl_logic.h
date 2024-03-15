@@ -1,7 +1,8 @@
+#ifndef SDL_LOGIC_H
+
 #include <SDL.h>
 #include <stdbool.h>
 
-#ifndef SDL_LOGIC_H
 #define SDL_LOGIC_h
 #define WIDTH 64
 #define HEIGHT 32

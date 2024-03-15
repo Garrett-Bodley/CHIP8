@@ -1,3 +1,5 @@
+#ifdef SDL
+
 #include <stdbool.h>
 #include <SDL.h>
 #include "../headers/sdl_logic.h"
@@ -34,3 +36,4 @@ bool sdl_update(SDL_Interface_t* interface)
   SDL_RenderPresent(interface->renderer);
   return false;
 }
+#endif

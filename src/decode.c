@@ -60,7 +60,9 @@ void CLS(Machine_t* machine)
   #ifdef DEBUG
   puts("CLS");
   #endif
+  #ifdef SDL
   memset(machine->SCREEN->pixels, 0x00, SCREEN_REGISTER_COUNT);
+  #endif
 }
 
 void RET(Machine_t* machine)
@@ -106,6 +108,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   // See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more
   // information on the Chip-8 screen and sprites.
 
+  #ifdef SDL
   uint8_t Vx = (*instruction)[0] & 0x0F;
   uint8_t Vy = ((*instruction)[1] & 0xF0) >> 4;
   uint8_t N = (*instruction)[1] & 0x0F;
@@ -164,6 +167,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
       ((uint8_t*)machine->SCREEN->pixels)[mem_offset + 1] ^= right_mask;
     }
   }
+  #endif
 }
 
 void decode(Machine_t* machine, Instruction_t* instruction)
