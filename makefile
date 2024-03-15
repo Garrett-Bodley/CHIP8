@@ -64,7 +64,6 @@ $(SDL_OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(SDL_OBJ_DIR)
 
 # Generates SDL specific binary file from obj/sdl/*.o files
 $(SDL_BIN_DIR)/chip8: $(SDL_OBJ) | $(SDL_BIN_DIR)
-	@ echo "foo bar"
 	$(SDL_CC) $(SDL_CFLAGS) $^ -o $@ $(shell sdl2-config --libs)
 
 ##### Test build process #####
