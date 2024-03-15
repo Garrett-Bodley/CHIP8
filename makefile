@@ -1,3 +1,5 @@
+SHELL=/opt/homebrew/bin/bash
+
 SDL_CC = clang
 SDL_CFLAGS = -Wall -g -DSDL
 SDL_DFLAGS = -DDEBUG
@@ -43,6 +45,10 @@ debug-test: test
 # Log which clang is being used
 which-clang:
 	@echo $(shell echo `realpath $(shell which clang)`)
+
+# Log which shell is being used
+which-shell:
+	@echo $(SHELL)
 
 # Rule to create necessary directories
 $(SRC_DIR) $(SDL_OBJ_DIR) $(SDL_BIN_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR):
