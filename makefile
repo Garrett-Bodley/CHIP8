@@ -4,6 +4,8 @@ SRC_DIR=src
 OBJ_DIR=obj
 BIN_DIR=bin
 
+SOURCES := $(wildcard $(SRC_DIR)/*.c)
+
 ##### SDL variables #####
 # --------------------------------------------------------------------------------------------------
 
@@ -11,19 +13,47 @@ SDL_CC = clang
 SDL_CFLAGS = -Wall -g -DSDL
 SDL_DFLAGS = -DDEBUG
 
-SDL_OBJ_DIR=obj/sdl
-SDL_BIN_DIR=bin/sdl
+SDL_OBJ_DIR=$(OBJ_DIR)/sdl
+SDL_BIN_DIR=$(BIN_DIR)/sdl
 
-SDL_SOURCES := $(wildcard $(SRC_DIR)/*.c)
-SDL_OBJ := $(SDL_SOURCES:$(SRC_DIR)/%.c=$(SDL_OBJ_DIR)/%.o)
+SDL_OBJ := $(SOURCES:$(SRC_DIR)/%.c=$(SDL_OBJ_DIR)/%.o)
+
+##### Apple ][ variables #####
+# --------------------------------------------------------------------------------------------------
+# Define cl65 as the main compiler/linker
+CC65 = cc65
+CA65 = ca65
+CL65 = cl65
+
+# Define c2t program to convert binary to a wav
+C2T = /Users/garrettbodley/Code/hello-cc65/lib/c2t
+
+# Specify the include directory
+APL_CFLAGS = -I headers -D APPLE2
+
+# Define the directories
+APL_OBJ_DIR = $(OBJ_DIR)/apple2
+APL_BIN_DIR = $(BIN_DIR)/apple2
+
+# Specify the target system for the cc65 suite, if necessary
+APL_TARGET_SYS = apple2
+
+# Start address for the output binary
+APL_START_ADDRESS = 2000
+
+# Name of the final executable
+APL_TARGET = $(APL_BIN_DIR)/chip8
+
+APL_ASSEMBLIES := $(patsubst $(SRC_DIR)/%.c,$(APL_OBJ_DIR)/%.s,$(SOURCES))
+APL_OBJECTS := $(patsubst $(APL_OBJ_DIR)/%.s,$(APL_OBJ_DIR)/%.o,$(APL_ASSEMBLIES))
 
 ##### TEST variables #####
 # --------------------------------------------------------------------------------------------------
 
 TEST_DIR=tests
-TEST_SRC_DIR=tests/src
-TEST_OBJ_DIR=tests/obj
-TEST_BIN_DIR=tests/bin
+TEST_SRC_DIR=$(TEST_DIR)/src
+TEST_OBJ_DIR=$(TEST_DIR)/obj
+TEST_BIN_DIR=$(TEST_DIR)/bin
 
 TEST_SOURCES := $(wildcard $(TEST_SRC_DIR)/*.c)
 TEST_OBJ := $(TEST_SOURCES:$(TEST_SRC_DIR)/%.c=$(TEST_OBJ_DIR)/%.o)
@@ -41,6 +71,10 @@ BREW_LIB=/opt/homebrew/lib
 all: $(SDL_BIN_DIR)/chip8
 
 sdl: $(SDL_BIN_DIR)/chip8
+
+apple2: $(APL_TARGET)
+
+wav: $(APL_TARGET).wav
 
 ##### DEBUG build command #####
 #
@@ -64,7 +98,7 @@ which-shell:
 
 ##### Init necessary directories #####
 # --------------------------------------------------------------------------------------------------
-$(SDL_OBJ_DIR) $(SDL_BIN_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR):
+$(SDL_OBJ_DIR) $(SDL_BIN_DIR) $(TEST_BIN_DIR) $(TEST_OBJ_DIR) $(APL_OBJ_DIR) $(APL_BIN_DIR) $(APL_OUT_DIR):
 	mkdir -p $@
 
 ##### SDL build process #####
@@ -77,6 +111,25 @@ $(SDL_OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(SDL_OBJ_DIR)
 # Generates SDL specific binary file from obj/sdl/*.o files
 $(SDL_BIN_DIR)/chip8: $(SDL_OBJ) | $(SDL_BIN_DIR)
 	$(SDL_CC) $(SDL_CFLAGS) $^ -o $@ $(shell sdl2-config --libs)
+
+##### Apple2 build process #####
+# --------------------------------------------------------------------------------------------------
+
+# Generate apple2 .s files from .c
+$(APL_OBJ_DIR)/%.s: $(SRC_DIR)/%.c | $(APL_OBJ_DIR)
+	$(CC65) $(APL_CFLAGS) -t $(APL_TARGET_SYS) -o $@ $<
+
+# Rule to make the objects
+$(APL_OBJ_DIR)/%.o: $(APL_OBJ_DIR)/%.s | $(APL_OBJ_DIR)
+	$(CA65) -o $@ $<
+
+# Rule to make the target
+$(APL_TARGET): $(APL_OBJECTS) | $(APL_BIN_DIR)
+	$(CL65) -o $@ -t $(APL_TARGET_SYS) --start-addr 0x$(APL_START_ADDRESS) -Wl -D__EXEHDR__=0 $(APL_CFLAGS) $(APL_OBJECTS)
+
+# Rule to make wav from apple2 binary
+$(APL_TARGET).wav: $(APL_TARGET)
+	$(C2T) -bc8 $(APL_TARGET),$(START_ADDRESS) $(APL_TARGET).wav
 
 ##### Test build process #####
 # --------------------------------------------------------------------------------------------------
