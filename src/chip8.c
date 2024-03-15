@@ -9,6 +9,7 @@
 #include "../headers/chip8.h"
 #include "../headers/decode.h"
 
+#ifdef DEBUG
 void log_memory(Machine_t* machine)
 {
   for(int i = 0; i < MEM_SIZE; i++)
@@ -20,30 +21,40 @@ void log_memory(Machine_t* machine)
   }
   printf("\n");
 }
+#endif
 
 void chip8(char* path)
 {
   Machine_t machine;
   Instruction_t instruction;
+
   sys_init(&machine);
   load_file(path, &machine);
   #ifdef DEBUG
   log_memory(&machine);
   #endif
 
+  #ifdef SDL
   SDL_Interface_t interface;
   init_sdl(&interface);
 
   machine.SCREEN = interface.surface;
+  #endif
 
+  #ifdef SDL
   bool quit = false;
   while(!quit)
   {
+  #else
+    
+  #endif
     fetch(&machine, &instruction);
     #ifdef DEBUG
       printf("Instruction: %02x%02x\n", instruction[0], instruction[1]);
     #endif
     decode(&machine, &instruction);
+  #ifdef SDL
     quit = sdl_update(&interface);
   }
+  #endif
 }
