@@ -1,30 +1,42 @@
 SHELL=/opt/homebrew/bin/bash
 
-SDL_CC = clang
-SDL_CFLAGS = -Wall -g -DSDL
-SDL_DFLAGS = -DDEBUG
-
 SRC_DIR=src
 OBJ_DIR=obj
 BIN_DIR=bin
 
+##### SDL variables #####
+# --------------------------------------------------------------------------------------------------
+
+SDL_CC = clang
+SDL_CFLAGS = -Wall -g -DSDL
+SDL_DFLAGS = -DDEBUG
+
 SDL_OBJ_DIR=obj/sdl
 SDL_BIN_DIR=bin/sdl
+
+SDL_SOURCES := $(wildcard $(SRC_DIR)/*.c)
+SDL_OBJ := $(SDL_SOURCES:$(SRC_DIR)/%.c=$(SDL_OBJ_DIR)/%.o)
+
+##### TEST variables #####
+# --------------------------------------------------------------------------------------------------
 
 TEST_DIR=tests
 TEST_SRC_DIR=tests/src
 TEST_OBJ_DIR=tests/obj
 TEST_BIN_DIR=tests/bin
 
-BREW_INCLUDE=/opt/homebrew/include
-BREW_LIB=/opt/homebrew/lib
-
-SDL_SOURCES := $(wildcard $(SRC_DIR)/*.c)
-SDL_OBJ := $(SDL_SOURCES:$(SRC_DIR)/%.c=$(SDL_OBJ_DIR)/%.o)
-
 TEST_SOURCES := $(wildcard $(TEST_SRC_DIR)/*.c)
 TEST_OBJ := $(TEST_SOURCES:$(TEST_SRC_DIR)/%.c=$(TEST_OBJ_DIR)/%.o)
 TEST_BINS := $(TEST_SOURCES:$(TEST_SRC_DIR)/%.c=$(TEST_BIN_DIR)/%)
+
+##### Homebrew stuff #####
+# --------------------------------------------------------------------------------------------------
+
+BREW_INCLUDE=/opt/homebrew/include
+BREW_LIB=/opt/homebrew/lib
+
+##### Top-level make commands #####
+# --------------------------------------------------------------------------------------------------
 
 all: $(SDL_BIN_DIR)/chip8
 
