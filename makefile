@@ -21,15 +21,18 @@ SDL_OBJ := $(SOURCES:$(SRC_DIR)/%.c=$(SDL_OBJ_DIR)/%.o)
 ##### Apple ][ variables #####
 # --------------------------------------------------------------------------------------------------
 # Define cl65 as the main compiler/linker
-CC65 = cc65
-CA65 = ca65
+# CC65 = cc65
+# CA65 = ca65
 CL65 = cl65
 
-# Define c2t program to convert binary to a wav
-C2T = /Users/garrettbodley/Code/hello-cc65/lib/c2t
+# Define c2t: a program to convert binary to a wav
+C2T = /Users/garrettbodley/Code/c2t-master/bin/c2t_arm
+
+# Define AppleCommander file
+AC = lib/AppleCommander-ac-1.9.0.jar
 
 # Specify the include directory
-APL_CFLAGS = -I headers -D APPLE2
+APL_CFLAGS = -O -I ./ -t apple2 --start-addr 0x2000 -Wl -D__EXEHDR__=0 -D APPLE2
 
 # Define the directories
 APL_OBJ_DIR = $(OBJ_DIR)/apple2
@@ -44,8 +47,14 @@ APL_START_ADDRESS = 2000
 # Name of the final executable
 APL_TARGET = $(APL_BIN_DIR)/chip8
 
-APL_ASSEMBLIES := $(patsubst $(SRC_DIR)/%.c,$(APL_OBJ_DIR)/%.s,$(SOURCES))
-APL_OBJECTS := $(patsubst $(APL_OBJ_DIR)/%.s,$(APL_OBJ_DIR)/%.o,$(APL_ASSEMBLIES))
+# APL_ASSEMBLIES := $(patsubst $(SRC_DIR)/%.c,$(APL_OBJ_DIR)/%.s,$(SOURCES))
+# APL_OBJECTS := $(patsubst $(APL_OBJ_DIR)/%.s,$(APL_OBJ_DIR)/%.o,$(APL_ASSEMBLIES))
+
+APL_OBJECTS = $(SOURCES:$(SRC_DIR)/%.c=$(APL_OBJ_DIR)/%.o)
+
+# Define disk image for use with AppleCommander
+DISK_IMG = lib/ProDOS_8.dsk
+TARGET_DISK = $(APL_BIN_DIR)/chip8.dsk
 
 ##### TEST variables #####
 # --------------------------------------------------------------------------------------------------
@@ -75,6 +84,11 @@ sdl: $(SDL_BIN_DIR)/chip8
 apple2: $(APL_TARGET)
 
 wav: $(APL_TARGET).wav
+
+disk: $(TARGET_DISK)
+
+test: $(TEST_BINS) | $(TEST_OBJ)
+	for test_bin in $^; do ./$$test_bin; done
 
 ##### DEBUG build command #####
 #
@@ -116,20 +130,27 @@ $(SDL_BIN_DIR)/chip8: $(SDL_OBJ) | $(SDL_BIN_DIR)
 # --------------------------------------------------------------------------------------------------
 
 # Generate apple2 .s files from .c
-$(APL_OBJ_DIR)/%.s: $(SRC_DIR)/%.c | $(APL_OBJ_DIR)
-	$(CC65) $(APL_CFLAGS) -t $(APL_TARGET_SYS) -o $@ $<
+# $(APL_OBJ_DIR)/%.s: $(SRC_DIR)/%.c | $(APL_OBJ_DIR)
+# 	$(CC65) $(APL_CFLAGS) -t $(APL_TARGET_SYS) -o $@ $<
 
 # Rule to make the objects
-$(APL_OBJ_DIR)/%.o: $(APL_OBJ_DIR)/%.s | $(APL_OBJ_DIR)
-	$(CA65) -o $@ $<
+$(APL_OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(APL_OBJ_DIR)
+	$(CL65) $(APL_CFLAGS) -c -o $@ $<
 
 # Rule to make the target
 $(APL_TARGET): $(APL_OBJECTS) | $(APL_BIN_DIR)
-	$(CL65) -o $@ -t $(APL_TARGET_SYS) --start-addr 0x$(APL_START_ADDRESS) -Wl -D__EXEHDR__=0 $(APL_CFLAGS) $(APL_OBJECTS)
+	$(CL65) $(APL_CFLAGS) -o $@ $^
+	@# $(CL65) -o $@ -O -t $(APL_TARGET_SYS) --start-addr 0x$(APL_START_ADDRESS) -Wl -D__EXEHDR__=0 $(APL_CFLAGS) $(APL_OBJECTS)
 
 # Rule to make wav from apple2 binary
 $(APL_TARGET).wav: $(APL_TARGET)
-	$(C2T) -bc8 $(APL_TARGET),$(START_ADDRESS) $(APL_TARGET).wav
+	$(C2T) -b8 $(APL_TARGET),$(START_ADDRESS) $(APL_TARGET).wav
+
+# Rule to make disk image from apple2 binary
+$(TARGET_DISK): $(APL_TARGET)
+	cp $(DISK_IMG) $(TARGET_DISK)
+	for f in launcher sysutil fastcopy basic; do java -jar $(AC) -d $(TARGET_DISK) $$f.system; done
+	java -jar $(AC) -p $(TARGET_DISK) main.system sys 0x$(APL_START_ADDRESS) < $(APL_TARGET)
 
 ##### Test build process #####
 # --------------------------------------------------------------------------------------------------
@@ -141,9 +162,6 @@ $(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.c | $(TEST_OBJ_DIR)
 # Generates test binaries from test/obj/*.o files
 $(TEST_BIN_DIR)/%: $(TEST_OBJ_DIR)/%.o $(filter-out $(SDL_OBJ_DIR)/main.o, $(SDL_OBJ)) | $(TEST_BIN_DIR)
 	$(SDL_CC) $(SDL_CFLAGS) $(shell sdl2-config --libs) $^ -o $@ -L$(BREW_LIB) -lcriterion
-
-test: $(TEST_BINS) | $(TEST_OBJ)
-	for test_bin in $^; do ./$$test_bin; done
 
 ##### Clean commands #####
 # --------------------------------------------------------------------------------------------------
