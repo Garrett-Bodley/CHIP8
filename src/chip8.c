@@ -2,13 +2,13 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "../headers/machine.h"
 #include "../headers/chip8.h"
 #include "../headers/decode.h"
 
 #ifdef DEBUG
-#include <stdio.h>
 #endif
 
 
@@ -31,10 +31,15 @@ void log_memory(Machine_t* machine)
 }
 #endif
 
+#ifdef SDL
 void chip8(char* path)
+#elif defined(APPLE2)
+void chip8()
+#endif
 {
   static Machine_t machine;
   static Instruction_t instruction;
+
 
   sys_init(&machine);
 

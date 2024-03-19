@@ -3,12 +3,18 @@
 
 int main(int argc, char* argv[])
 {
-  if(argc < 2)
-  {
-    printf("Usage: %s <filename>\n", argv[0]);
-    return 1;
-  }
+  // printf("%s", "hello world?");
+  // #ifdef SDL
+  // if(argc < 2)
+  // {
+  //   printf("Usage: %s <filename>\n", argv[0]);
+  //   return 1;
+  // }
+  // chip8(argv[1]);
+  // #elif defined(APPLE2)
+  printf("Hello, Compiled CHIP-8\n");
+  // chip8();
+  // #endif
 
-  chip8(argv[1]);
   return 0;
 }

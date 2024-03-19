@@ -1,11 +1,11 @@
 #include <stdint.h>
 #include <string.h>
 #include "../headers/machine.h"
-
 #ifdef SDL
 #include <stdlib.h>
 #include <stdio.h>
 #endif
+
 
 void clear_machine(Machine_t* machine){
   memset(machine, 0, sizeof(Machine_t));
@@ -46,6 +46,11 @@ void load_file(char* path, Machine_t* machine)
 
   fclose(file);
 }
+#elif defined(APPLE2)
+// void load_file(Machine_t* machine)
+// {
+
+// }
 #endif
 
 void load_font(Machine_t* machine)
