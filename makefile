@@ -32,7 +32,7 @@ C2T = /Users/garrettbodley/Code/c2t-master/bin/c2t_arm
 AC = lib/AppleCommander-ac-1.9.0.jar
 
 # Specify the include directory
-APL_CFLAGS = -O -I ./ -t apple2 --start-addr 0x2000 -Wl -D__EXEHDR__=0 -D APPLE2
+APL_CFLAGS = -O -t apple2 --start-addr 0x2000 -Wl -D__EXEHDR__=0 -D APPLE2
 
 # Define the directories
 APL_OBJ_DIR = $(OBJ_DIR)/apple2
@@ -83,9 +83,12 @@ sdl: $(SDL_BIN_DIR)/chip8
 
 apple2: $(APL_TARGET)
 
-wav: $(APL_TARGET).wav
+wav: $(APL_TARGET).aif
 
 disk: $(TARGET_DISK)
+
+sha-c2t:
+	sha1sum $(C2T)
 
 test: $(TEST_BINS) | $(TEST_OBJ)
 	for test_bin in $^; do ./$$test_bin; done
@@ -140,11 +143,11 @@ $(APL_OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(APL_OBJ_DIR)
 # Rule to make the target
 $(APL_TARGET): $(APL_OBJECTS) | $(APL_BIN_DIR)
 	$(CL65) $(APL_CFLAGS) -o $@ $^
-	@# $(CL65) -o $@ -O -t $(APL_TARGET_SYS) --start-addr 0x$(APL_START_ADDRESS) -Wl -D__EXEHDR__=0 $(APL_CFLAGS) $(APL_OBJECTS)
+	@# $(CL65) $(APL_CFLAGS) -o $@ obj/apple2/main.o
 
 # Rule to make wav from apple2 binary
-$(APL_TARGET).wav: $(APL_TARGET)
-	$(C2T) -b8 $(APL_TARGET),$(START_ADDRESS) $(APL_TARGET).wav
+$(APL_TARGET).aif: $(APL_TARGET)
+	$(C2T) -bc8 $(APL_TARGET),$(APL_START_ADDRESS) $(APL_TARGET).aif
 
 # Rule to make disk image from apple2 binary
 $(TARGET_DISK): $(APL_TARGET)
