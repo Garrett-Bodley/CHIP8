@@ -77,13 +77,19 @@ BREW_LIB=/opt/homebrew/lib
 ##### Top-level make commands #####
 # --------------------------------------------------------------------------------------------------
 
-all: $(SDL_BIN_DIR)/chip8
+default: sdl
+
+all: sdl apple-all
 
 sdl: $(SDL_BIN_DIR)/chip8
 
-apple2: $(APL_TARGET)
+apple-all: apple wav aif disk
 
-wav: $(APL_TARGET).aif
+apple: $(APL_TARGET)
+
+wav: $(APL_TARGET).wav
+
+aif: $(APL_TARGET).aif
 
 disk: $(TARGET_DISK)
 
@@ -145,9 +151,13 @@ $(APL_TARGET): $(APL_OBJECTS) | $(APL_BIN_DIR)
 	$(CL65) $(APL_CFLAGS) -o $@ $^
 	@# $(CL65) $(APL_CFLAGS) -o $@ obj/apple2/main.o
 
-# Rule to make wav from apple2 binary
+# Rule to make aif from apple2 binary
 $(APL_TARGET).aif: $(APL_TARGET)
 	$(C2T) -bc8 $(APL_TARGET),$(APL_START_ADDRESS) $(APL_TARGET).aif
+
+# Rule to make wav from apple2 binary
+$(APL_TARGET).wav: $(APL_TARGET)
+	$(C2T) -bc8 $(APL_TARGET),$(APL_START_ADDRESS) $(APL_TARGET).wav
 
 # Rule to make disk image from apple2 binary
 $(TARGET_DISK): $(APL_TARGET)
@@ -183,4 +193,9 @@ clean-test:
 	@ # echo $(TEST_OBJ_DIR) $(TEST_BIN_DIR)
 	rm -rf $(TEST_OBJ_DIR) $(TEST_BIN_DIR)
 
-.PHONY: clean clean-test debug debug-test test
+clean-apple:
+	@[ -n "$(APL_BIN_DIR)" ] || { echo "APL_BIN_DIR unset or null"; exit 127; }
+	@[ -n "$(APL_OBJ_DIR)" ] || { echo "APL_BIN_DIR unset or null"; exit 127; }
+	rm -rf $(APL_BIN_DIR) $(APL_OBJ_DIR)
+
+.PHONY: sdl apple2 apple-all wav aif disk clean clean-test debug debug-test test
