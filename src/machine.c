@@ -4,6 +4,8 @@
 #ifdef SDL
 #include <stdlib.h>
 #include <stdio.h>
+#elif defined(APPLE2)
+#include "../headers/apple_rom.h"
 #endif
 
 
@@ -11,9 +13,9 @@ void clear_machine(Machine_t* machine){
   memset(machine, 0, sizeof(Machine_t));
 }
 
-#ifdef SDL
 void load_file(char* path, Machine_t* machine)
 {
+  #ifdef SDL
   FILE *file;
   int file_size;
 
@@ -45,13 +47,12 @@ void load_file(char* path, Machine_t* machine)
   }
 
   fclose(file);
+  #elif defined(APPLE2)
+    // rom and rom_size are extern values found in apple_rom.c
+    uint8_t* start_position = machine->MEMORY + 0x200;
+    memcpy(start_position, &rom, rom_size);
+  #endif
 }
-#elif defined(APPLE2)
-// void load_file(Machine_t* machine)
-// {
-
-// }
-#endif
 
 void load_font(Machine_t* machine)
 {
