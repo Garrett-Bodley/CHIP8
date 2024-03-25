@@ -1,3 +1,4 @@
+#include <SDL.h>
 #include <criterion/criterion.h>
 #include "../../headers/machine.h"
 #include "../../headers/instruction.h"
