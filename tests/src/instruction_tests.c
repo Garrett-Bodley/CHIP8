@@ -3,8 +3,8 @@
 #include "../../headers/instruction.h"
 #include "../../headers/decode.h"
 
-Machine_t machine;
-Instruction_t instruction;
+extern Machine_t machine;
+extern Instruction_t instruction;
 
 void setup(void)
 {

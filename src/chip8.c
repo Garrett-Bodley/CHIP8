@@ -8,6 +8,9 @@
 #include "../headers/chip8.h"
 #include "../headers/decode.h"
 
+Machine_t machine;
+Instruction_t instruction;
+
 #ifdef DEBUG
 #endif
 
@@ -47,9 +50,6 @@ void chip8(char* path)
 void chip8()
 #endif
 {
-  static Machine_t machine;
-  static Instruction_t instruction;
-
 
   sys_init(&machine);
 

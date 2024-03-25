@@ -3,7 +3,7 @@
 #include "../../headers/instruction.h"
 #include <stddef.h>
 
-Machine_t machine;
+extern Machine_t machine;
 
 void log_memory_test(Machine_t* machine)
 {
