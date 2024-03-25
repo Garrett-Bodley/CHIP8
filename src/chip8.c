@@ -31,6 +31,16 @@ void log_memory(Machine_t* machine)
 }
 #endif
 
+void log_font(Machine_t* machine)
+{
+  uint8_t i;
+  uint8_t base_addr = 0x50;
+  for(i = 0; i < 80; i++)
+  {
+    printf("%02x\n", machine->MEMORY[base_addr + i]);
+  }
+}
+
 #ifdef SDL
 void chip8(char* path)
 #elif defined(APPLE2)
