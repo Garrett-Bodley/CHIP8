@@ -2,28 +2,28 @@
 #include <string.h>
 #include <stdint.h>
 
-#define MIXED_ON (char *)0xC053
-#define MIXED_OFF (char *)0xC052
+#define MIXED_ON (uint8_t *)0xC053
+#define MIXED_OFF (uint8_t *)0xC052
 
-#define TEXT_ON (char *)0xC051
-#define TEXT_OFF (char *)0xC050
+#define TEXT_ON (uint8_t *)0xC051
+#define TEXT_OFF (uint8_t *)0xC050
 
-#define COLUMN_80_ON (char *)0xC00D
-#define COLUMN_80_OFF (char *)0xC00C
+#define COLUMN_80_ON (uint8_t *)0xC00D
+#define COLUMN_80_OFF (uint8_t *)0xC00C
 
 // I think maybe these are mislabeled...
-#define FULL_SCREEN_COLUMN_80_ON (char *)0xC05E
-#define FULL_SCREEN_COLUMN_80_OFF (char *)0xC05F
+#define FULL_SCREEN_COLUMN_80_ON (uint8_t *)0xC05E
+#define FULL_SCREEN_COLUMN_80_OFF (uint8_t *)0xC05F
 
 // Instead maybe call them this?
-#define DOUBLE_RES_ON (char *)0xC05E
-#define DOUBLE_RES_OFF (char *)0xC05F
+#define DOUBLE_HIRES_ON (uint8_t *)0xC05E
+#define DOUBLE_HIRES_OFF (uint8_t *)0xC05F
 
-#define STORE_80_ON (char *)0xC001
-#define STORE_80_OFF (char *)0xC000
+#define STORE_80_ON (uint8_t *)0xC001
+#define STORE_80_OFF (uint8_t *)0xC000
 
-#define PAGE_2_ON (char *)0xC055
-#define PAGE_2_OFF (char *)0xC054
+#define PAGE_2_ON (uint8_t *)0xC055
+#define PAGE_2_OFF (uint8_t *)0xC054
 
 void apple_sleep(uint8_t seconds){
     volatile uint16_t i;
@@ -94,10 +94,12 @@ void set_page_2(bool flag)
 {
   if (flag)
   {
+    // 0xC055 - On: select Page 2 or, if 80 STORE on, Page 1 in auxiliary memory
     *PAGE_2_ON = -1;
   }
   else
   {
+    // 0xC054 — Off: select Page 1
     *PAGE_2_OFF = -1;
   }
 }
@@ -108,7 +110,7 @@ void set_store_80(bool flag)
   //
   // If 80 STORE is ON, "page 2" refers to aux memory, e.g. the interleaved memory used for 80-column mode
   // If 80 STORE is OFF, "page 2" refers to the memory space 0x800-0xBFF
-  //
+  // 
   // This is described on page 27 of the Apple //e technical reference manual
   // https://archive.org/details/Apple_IIe_Technical_Reference_Manual/page/n59/mode/2up?q=double+low+res
   if(flag)
@@ -120,7 +122,7 @@ void set_store_80(bool flag)
   }
 }
 
-void set_double_res(bool flag)
+void set_double_hires(bool flag)
 {
   // Double Resolution Mode
   //
@@ -128,13 +130,17 @@ void set_double_res(bool flag)
   // It seems tightly coupled to the Enable/Disable state of the IOU (Input Output Unit)
   // I don't fully understand what the Input Output Unit does, or why we need to fiddle with this tbh.
 
+  // IOUDIS is on at boot time with the Virtual II
+  // Unsure if this is true on the physical Apple //e at the Hub
   if(flag)
   {
-    *DOUBLE_RES_ON = -1;
+    // On: if IOUDIS on, turn on double-high-res.
+    *DOUBLE_HIRES_ON = -1;
   }
   else
   {
-    *DOUBLE_RES_OFF = -1;
+    // Off: if IOUDIS on, turn off double-high-res
+    *DOUBLE_HIRES_OFF = -1;
   }
 }
 
@@ -142,17 +148,18 @@ void switch_text_80()
 {
   set_mixed(false);
   set_text(true);
-  set_store_80(true);
+  set_store_80(false);
   set_column_80(true);
-  set_double_res(true);
+  set_double_hires(true);
   // set_text(true);
 }
 
 void set_double_low_res()
 {
-  set_column_80(true);
-  set_double_res(true);
   set_text(false);
+  set_column_80(true);
+  set_store_80(true);
+  set_double_hires(true);
 }
 
 void fill_lgd()
