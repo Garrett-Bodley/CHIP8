@@ -10,7 +10,7 @@ SOURCES := $(wildcard $(SRC_DIR)/*.c)
 # --------------------------------------------------------------------------------------------------
 
 SDL_CC = clang
-SDL_CFLAGS = -Wall -g -DSDL
+SDL_CFLAGS = -Wall -g -O2 -DSDL
 SDL_DFLAGS = -DDEBUG
 
 SDL_OBJ_DIR=$(OBJ_DIR)/sdl
