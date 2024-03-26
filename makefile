@@ -152,11 +152,11 @@ $(APL_TARGET): $(APL_OBJECTS) | $(APL_BIN_DIR)
 	@# $(CL65) $(APL_CFLAGS) -o $@ obj/apple2/main.o
 
 # Rule to make aif from apple2 binary
-$(APL_TARGET).aif: $(APL_TARGET)
+$(APL_TARGET).aif: $(APL_TARGET) clean-aif
 	$(C2T) -bc8 $(APL_TARGET),$(APL_START_ADDRESS) $(APL_TARGET).aif
 
 # Rule to make wav from apple2 binary
-$(APL_TARGET).wav: $(APL_TARGET)
+$(APL_TARGET).wav: $(APL_TARGET) clean-wav
 	$(C2T) -bc8 $(APL_TARGET),$(APL_START_ADDRESS) $(APL_TARGET).wav
 
 # Rule to make disk image from apple2 binary
@@ -195,7 +195,23 @@ clean-test:
 
 clean-apple:
 	@[ -n "$(APL_BIN_DIR)" ] || { echo "APL_BIN_DIR unset or null"; exit 127; }
-	@[ -n "$(APL_OBJ_DIR)" ] || { echo "APL_BIN_DIR unset or null"; exit 127; }
+	@[ -n "$(APL_OBJ_DIR)" ] || { echo "APL_OBJ_DIR unset or null"; exit 127; }
 	rm -rf $(APL_BIN_DIR) $(APL_OBJ_DIR)
 
-.PHONY: sdl apple2 apple-all wav aif disk clean clean-test debug debug-test test
+clean-wav:
+	@if [ -f "$(APL_TARGET).wav" ]; then \
+		echo "Removing $(APL_TARGET).wav"; \
+		rm "$(APL_TARGET).wav"; \
+	else \
+		echo "$(APL_TARGET).wav does not exist"; \
+	fi
+
+clean-aif:
+	@if [ -f "$(APL_TARGET).aif" ]; then \
+		echo "Removing $(APL_TARGET).aif"; \
+		rm "$(APL_TARGET).aif"; \
+	else \
+		echo "$(APL_TARGET).aif does not exist"; \
+	fi
+
+.PHONY: sdl apple2 apple-all wav aif disk clean clean-test clean-wav clean-aif debug debug-test test
