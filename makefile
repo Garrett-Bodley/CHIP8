@@ -53,7 +53,7 @@ APL_TARGET = $(APL_BIN_DIR)/chip8
 APL_OBJECTS = $(SOURCES:$(SRC_DIR)/%.c=$(APL_OBJ_DIR)/%.o)
 
 # Define disk image for use with AppleCommander
-DISK_IMG = lib/ProDOS_8.dsk
+DISK_IMG = lib/PRODOS8_TEMPLATE.dsk
 TARGET_DISK = $(APL_BIN_DIR)/chip8.dsk
 
 ##### TEST variables #####
@@ -162,8 +162,15 @@ $(APL_TARGET).wav: $(APL_TARGET) clean-wav
 # Rule to make disk image from apple2 binary
 $(TARGET_DISK): $(APL_TARGET)
 	cp $(DISK_IMG) $(TARGET_DISK)
-	for f in launcher sysutil fastcopy basic; do java -jar $(AC) -d $(TARGET_DISK) $$f.system; done
+	@# These were used when I copied ProDOS_8.dsk over. I have since made a template that has already deleted those files.
+	@# for f in launcher sysutil fastcopy basic; do java -jar $(AC) -d $(TARGET_DISK) $$f.system; done
+	@# java -jar $(AC) -d $(TARGET_DISK) UTIL.0
+	@# java -jar $(AC) -d $(TARGET_DISK) UTIL.1
+	@# java -jar $(AC) -d $(TARGET_DISK) UTIL.2
+	@# java -jar $(AC) -d $(TARGET_DISK) COPY.ME
+	@# java -jar $(AC) -d $(TARGET_DISK) SETTINGS
 	java -jar $(AC) -p $(TARGET_DISK) main.system sys 0x$(APL_START_ADDRESS) < $(APL_TARGET)
+
 
 ##### Test build process #####
 # --------------------------------------------------------------------------------------------------
@@ -214,4 +221,14 @@ clean-aif:
 		echo "$(APL_TARGET).aif does not exist"; \
 	fi
 
-.PHONY: sdl apple2 apple-all wav aif disk clean clean-test clean-wav clean-aif debug debug-test test
+clean-disk:
+	@if [ -f "$(APL_TARGET).dsk" ]; then \
+		echo "Removing $(APL_TARGET).dsk"; \
+		rm "$(APL_TARGET).dsk"; \
+	else \
+		echo "$(APL_TARGET).dsk does not exist"; \
+	fi
+
+.PHONY: sdl apple2 apple-all wav aif disk clean clean-test clean-wav clean-aif clean-disk debug debug-test test
+
+# java -jar ac.jar -g one.dsk fred | java -jar ac.jar -p another.dsk fred bin 2048
