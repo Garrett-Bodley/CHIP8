@@ -7,6 +7,8 @@
 #include "../headers/machine.h"
 #include "../headers/chip8.h"
 #include "../headers/decode.h"
+#include "../headers/apple_rom.h"
+#include "../headers/apple2_logic.h"
 
 Machine_t machine;
 Instruction_t instruction;
@@ -23,7 +25,8 @@ Instruction_t instruction;
 #ifdef DEBUG
 void log_memory(Machine_t* machine)
 {
-  for(int i = 0; i < MEM_SIZE; i++)
+  uint16_t i;
+  for(i = 0; i < MEM_SIZE; i++)
   {
     if(i % 16 == 0 && i > 0){ printf("\n"); }
     if(i % 16 == 0){ printf("%04x  ", i); }
@@ -33,6 +36,16 @@ void log_memory(Machine_t* machine)
   printf("\n");
 }
 #endif
+
+void log_rom(Machine_t* machine)
+{
+  uint8_t i;
+  // uint8_t* start_position = machine->MEMORY + 0x200;
+  for(i = 0; i < rom_size; i++)
+  {
+    printf("%02x ", machine->MEMORY[0x200 + i]);
+  }
+}
 
 void log_font(Machine_t* machine)
 {
@@ -44,18 +57,31 @@ void log_font(Machine_t* machine)
   }
 }
 
-#ifdef SDL
 void chip8(char* path)
-#elif defined(APPLE2)
-void chip8()
-#endif
 {
+  // sys_init(&machine);
+  // load_file(path, &machine);
+  // log_font(&machine);
+  // log_rom(&machine);
+  // switch_lgd_80(true);
+  // CLS(&machine);
+  // fill_lgd();
 
-  sys_init(&machine);
+  // apple_sleep(1);
+  // switch_text_80(true);
+  // apple_sleep(1);
+  set_double_low_res();
+  apple_sleep(1);
+  CLS(&machine);
+  set_page_2(true);
+  CLS(&machine);
+  apple_sleep(1);
+  // clear_lgd();
+  // uint16_t* iou = 0xC07E;
+  // set_double_res(true);
 
-  #ifdef SDL
-  load_file(path, &machine);
-  #endif
+  // printf("IOU Value: %d", (uint8_t)*iou & 128);
+
 
   #ifdef DEBUG
   log_memory(&machine);
@@ -72,16 +98,15 @@ void chip8()
   bool quit = false;
   while(!quit)
   {
-  #else
-
-  #endif
     fetch(&machine, &instruction);
     #ifdef DEBUG
       printf("Instruction: %02x%02x\n", instruction[0], instruction[1]);
     #endif
     decode(&machine, &instruction);
-  #ifdef SDL
     quit = sdl_update(&interface);
   }
+  #elif defined(APPLE2)
+
+    // printf("Inside chip8.c\n");
   #endif
 }
