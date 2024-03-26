@@ -1,6 +1,7 @@
 #include "../headers/instruction.h"
 #include "../headers/machine.h"
 #include <stdio.h>
+#include <string.h>
 
 void JP(Machine_t* machine, Instruction_t* instruction)
 {
@@ -62,6 +63,14 @@ void CLS(Machine_t* machine)
   #endif
   #ifdef SDL
   memset(machine->SCREEN->pixels, 0x00, SCREEN_REGISTER_COUNT);
+  #elif defined(APPLE2)
+    // This doesn't work with 80 column mode!
+    char *i = (char *)0x400; // first third of screen memory
+    char *j = (char *)0x428; // second third of screen memory
+    char *k = (char *)0x450; // last third of screen memory
+    memset(i, 0x00, 935);
+    memset(j, 0x00, 935);
+    memset(k, 0x00, 936);
   #endif
 }
 
@@ -167,6 +176,8 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
       ((uint8_t*)machine->SCREEN->pixels)[mem_offset + 1] ^= right_mask;
     }
   }
+  #elif defined(APPLE2)
+    printf("DRW_VX_VY_N");
   #endif
 }
 
