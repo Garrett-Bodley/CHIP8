@@ -17,6 +17,6 @@ void fill_lgd();
 void clear_lgd();
 
 void set_page_2(bool flag);
-void set_double_res(bool flag);
+void set_double_hires(bool flag);
 
 #endif
