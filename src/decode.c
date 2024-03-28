@@ -117,13 +117,17 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   // See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more
   // information on the Chip-8 screen and sprites.
 
-  #ifdef SDL
   uint8_t Vx = (*instruction)[0] & 0x0F;
   uint8_t Vy = ((*instruction)[1] & 0xF0) >> 4;
   uint8_t N = (*instruction)[1] & 0x0F;
 
   uint8_t x = machine->REGISTERS[Vx] & 63;
   uint8_t y = machine->REGISTERS[Vy] & 31;
+
+  // set VF to 0
+  machine->REGISTERS[0xF] = 0;
+
+  #ifdef SDL
 
   #ifdef DEBUG
   printf("DRW_VX_VY\n");
@@ -137,9 +141,6 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   }
   printf("\n");
   #endif
-
-  // set VF to 0
-  machine->REGISTERS[0xF] = 0;
 
   int x_mem_offset = x / 8; // 8 pixels per word
   int shift_offset = x & 7; // x % 7
@@ -178,6 +179,21 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   }
   #elif defined(APPLE2)
     printf("DRW_VX_VY_N");
+    // High nibble is the low row
+    // Low nibble is the high row
+
+    // Apple //e double low res is 80 x 48
+    // CHIP8 specifies 64 x 32
+    //
+    // Padding the CHIP 8 screen
+    //  8 units on x axis (8 left, 8 right)
+    //  8 units on the y axis (8 top, 8 bottom)
+
+    // Compute Apple x,y coordinates based of CHIP8 x, y (I think just add 8?)
+    // Determine whether it's the high nibble or low nibble of Apple //e screen
+    // Determine if it's Page 1 or Page 2 of screen memory
+    // Check for collisions
+    // XOR sprite onto screen
   #endif
 }
 
