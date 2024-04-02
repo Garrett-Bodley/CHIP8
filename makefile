@@ -31,7 +31,7 @@ C2T = /Users/garrettbodley/Code/c2t-master/bin/c2t_arm
 # Define AppleCommander file
 AC = lib/AppleCommander-ac-1.9.0.jar
 
-# Specify the include directory
+# Compiler flags for Apple target
 APL_CFLAGS = -O -t apple2 --start-addr 0x2000 -Wl -D__EXEHDR__=0 -D APPLE2
 
 # Define the directories
@@ -106,7 +106,7 @@ test: $(TEST_BINS) | $(TEST_OBJ)
 # --------------------------------------------------------------------------------------------------
 
 debug: SDL_CFLAGS += $(SDL_DFLAGS)
-debug: all
+debug: sdl
 
 debug-test: SDL_CFLAGS += $(SDL_DFLAGS)
 debug-test: test
