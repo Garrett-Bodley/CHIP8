@@ -59,8 +59,8 @@ void log_font(Machine_t* machine)
 
 void chip8(char* path)
 {
-  // sys_init(&machine);
-  // load_file(path, &machine);
+  sys_init(&machine);
+  load_file(path, &machine);
   // log_font(&machine);
   // log_rom(&machine);
   // switch_lgd_80(true);
@@ -70,12 +70,22 @@ void chip8(char* path)
   // apple_sleep(1);
   // switch_text_80(true);
   // apple_sleep(1);
-  set_double_low_res();
-  apple_sleep(1);
-  CLS(&machine);
-  set_page_2(true);
-  CLS(&machine);
-  apple_sleep(1);
+  // char *i = (char *)0x400; // first third of screen memory
+  // char *j = (char *)0x428; // second third of screen memory
+  // char *k = (char *)0x450; // last third of screen memory
+
+  // // High nibble is the low row
+  // // Low nibble is the high row
+  // set_double_low_res();
+  // memset(i, 0x0f, 935);
+  // memset(j, 0x0f, 935);
+  // memset(k, 0x0f, 936);
+  // set_page_2(true);
+  // memset(i, 0x0f, 935);
+  // memset(j, 0x0f, 935);
+  // memset(k, 0x0f, 936);
+  // // CLS(&machine);
+  // apple_sleep(1);
   // clear_lgd();
   // uint16_t* iou = 0xC07E;
   // set_double_res(true);
@@ -107,6 +117,14 @@ void chip8(char* path)
   }
   #elif defined(APPLE2)
 
+    set_double_low_res();
+    CLS(&machine);
+    // log_font(&machine);
+    while(true)
+    {
+      fetch(&machine, &instruction);
+      decode(&machine, &instruction);
+    }
     // printf("Inside chip8.c\n");
   #endif
 }

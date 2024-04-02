@@ -2,6 +2,13 @@
 #include "../headers/machine.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+
+#ifdef APPLE2
+
+#include "../headers/apple2_logic.h"
+
+#endif
 
 void JP(Machine_t* machine, Instruction_t* instruction)
 {
@@ -71,6 +78,10 @@ void CLS(Machine_t* machine)
     memset(i, 0x00, 935);
     memset(j, 0x00, 935);
     memset(k, 0x00, 936);
+    set_page_2(true);
+    memset(i, 0x00, 935);
+    memset(j, 0x00, 935);
+    memset(k, 0x00, 936);
   #endif
 }
 
@@ -117,6 +128,8 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   // See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more
   // information on the Chip-8 screen and sprites.
 
+
+  #ifdef SDL
   uint8_t Vx = (*instruction)[0] & 0x0F;
   uint8_t Vy = ((*instruction)[1] & 0xF0) >> 4;
   uint8_t N = (*instruction)[1] & 0x0F;
@@ -126,8 +139,6 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
 
   // set VF to 0
   machine->REGISTERS[0xF] = 0;
-
-  #ifdef SDL
 
   #ifdef DEBUG
   printf("DRW_VX_VY\n");
@@ -178,7 +189,19 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
     }
   }
   #elif defined(APPLE2)
-    printf("DRW_VX_VY_N");
+    // Dxyn - DRW Vx, Vy, nibble
+    // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
+
+    // The interpreter reads n bytes from memory, starting at the address stored in I.
+    // These bytes are then displayed as sprites on screen at coordinates (Vx, Vy).
+    // Sprites are XORed onto the existing screen. If this causes any pixels to be erased,
+    // VF is set to 1, otherwise it is set to 0. If the sprite is positioned so part of it is
+    // outside the coordinates of the display, it wraps around to the opposite side of the screen.
+
+    // See instruction 8xy3 for more information on XOR, and section 2.4, Display, for more
+    // information on the Chip-8 screen and sprites.
+
+
     // High nibble is the low row
     // Low nibble is the high row
 
@@ -194,6 +217,101 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
     // Determine if it's Page 1 or Page 2 of screen memory
     // Check for collisions
     // XOR sprite onto screen
+    uint8_t i, j, sprite_word, bit_to_write, val_to_write, x_mem_offset;
+    uint16_t y_mem_base;
+    uint8_t * address_to_write;
+    bool screen_nibble_high;
+    bool page2_flag;
+
+    uint8_t Vx = (*instruction)[0] & 0x0F;
+    uint8_t Vy = ((*instruction)[1] & 0xF0) >> 4;
+    uint8_t N = (*instruction)[1] & 0x0F;
+    uint8_t I = machine->I;
+
+    uint8_t x = machine->REGISTERS[Vx] & 63;
+    uint8_t y = machine->REGISTERS[Vy] & 31;
+    uint8_t sprite_mask = 128;
+
+
+    // set VF to 0
+    machine->REGISTERS[0xF] = 0;
+
+    // Pad for //e screen
+    x += 8;
+    y += 8;
+
+    if ((y & 1) == 0)
+    {
+      screen_nibble_high = false;
+    }else{
+      screen_nibble_high = true;
+    }
+
+    if((x & 1) == 0){
+      page2_flag = true;
+    }else{
+      page2_flag = false;
+    }
+
+    for(i = 0; i < N; i++)
+    {
+      // each i is a row
+      // Im going to have to change high or low nibble based on the value of i
+      sprite_word = machine->MEMORY[machine->I + i];
+      // Write each bit in sprite word to //e screen memory
+      for(j = 0; j < 8; j++)
+      {
+        // each j is a column
+
+        // We don't have to do anything if the bit we're looking at is empty
+        bit_to_write = sprite_word & sprite_mask;
+        if(bit_to_write == 0) continue;
+
+        // Set soft switch to write to the correct memory page
+        set_page_2(page2_flag);
+        val_to_write = 0xF;
+        if(screen_nibble_high){
+           val_to_write = 0xF0;
+        }else{
+          val_to_write = 0xF;
+        }
+
+        x_mem_offset = x / 2;
+
+        if((y >> 1) < 8)
+        {
+          y_mem_base = 0x400;
+        }
+        else if((y >> 1) < 16)
+        {
+          y_mem_base = 0x4A8;
+        }
+        else
+        {
+          y_mem_base = 0x450;
+        }
+        y_mem_base += (((y >> 1) & 7) * 0x80);
+
+        address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
+
+        // Check if VF is set
+        if(machine->REGISTERS[0xF] == 0 && (*address_to_write & val_to_write) != 0)
+        {
+          machine->REGISTERS[0xF] = 1;
+        }
+
+        *address_to_write ^= bit_to_write;
+
+        // change which page i'm writing to based on the value of J
+        sprite_mask >>= 1;
+        page2_flag = !page2_flag;
+        ++x;
+      }
+      screen_nibble_high = !screen_nibble_high;
+      ++y;
+    }
+
+
   #endif
 }
 

@@ -110,7 +110,7 @@ void set_store_80(bool flag)
   //
   // If 80 STORE is ON, "page 2" refers to aux memory, e.g. the interleaved memory used for 80-column mode
   // If 80 STORE is OFF, "page 2" refers to the memory space 0x800-0xBFF
-  // 
+  //
   // This is described on page 27 of the Apple //e technical reference manual
   // https://archive.org/details/Apple_IIe_Technical_Reference_Manual/page/n59/mode/2up?q=double+low+res
   if(flag)
