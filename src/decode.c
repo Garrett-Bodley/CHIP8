@@ -71,17 +71,36 @@ void CLS(Machine_t* machine)
   #ifdef SDL
   memset(machine->SCREEN->pixels, 0x00, SCREEN_REGISTER_COUNT);
   #elif defined(APPLE2)
-    // This doesn't work with 80 column mode!
-    char *i = (char *)0x400; // first third of screen memory
-    char *j = (char *)0x428; // second third of screen memory
-    char *k = (char *)0x450; // last third of screen memory
-    memset(i, 0x00, 935);
-    memset(j, 0x00, 935);
-    memset(k, 0x00, 936);
-    set_page_2(true);
-    memset(i, 0x00, 935);
-    memset(j, 0x00, 935);
-    memset(k, 0x00, 936);
+
+  char *one = (char *)0x400;
+  char *two = (char *)0x480;
+  char *three = (char *)0x500;
+  char *four = (char *)0x580;
+  char *five = (char *)0x600;
+  char *six = (char *)0x680;
+  char *seven = (char *)0x700;
+  char *eight = (char *)0x780;
+
+  memset(one, 0x00, 120);
+  memset(two, 0x00, 120);
+  memset(three, 0x00, 120);
+  memset(four, 0x00, 120);
+  memset(five, 0x00, 120);
+  memset(six, 0x00, 120);
+  memset(seven, 0x00, 120);
+  memset(eight, 0x00, 120);
+
+  set_page_2(true);
+
+  memset(one, 0x00, 120);
+  memset(two, 0x00, 120);
+  memset(three, 0x00, 120);
+  memset(four, 0x00, 120);
+  memset(five, 0x00, 120);
+  memset(six, 0x00, 120);
+  memset(seven, 0x00, 120);
+  memset(eight, 0x00, 120);
+
   #endif
 }
 
