@@ -85,7 +85,7 @@ void load_font(Machine_t* machine)
 
 void fetch(Machine_t* machine, Instruction_t* instruction)
 {
-  memcpy(instruction, *machine->MEMORY[machine->PC], 2);
+  memcpy(instruction, &(machine->MEMORY[machine->PC]), 2);
   machine->PC += 2;
 }
 
