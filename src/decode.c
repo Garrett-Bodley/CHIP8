@@ -236,7 +236,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
     // Determine if it's Page 1 or Page 2 of screen memory
     // Check for collisions
     // XOR sprite onto screen
-    uint8_t i, j, sprite_word, bit_to_write, val_to_write, x_mem_offset;
+    uint8_t i, j, sprite_word, sprite_mask, bit_to_write, val_to_write, x_mem_offset;
     uint16_t y_mem_base;
     uint8_t * address_to_write;
     bool screen_nibble_high;
@@ -249,7 +249,6 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
 
     uint8_t x = machine->REGISTERS[Vx] & 63;
     uint8_t y = machine->REGISTERS[Vy] & 31;
-    uint8_t sprite_mask = 128;
 
 
     // set VF to 0
@@ -277,7 +276,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
       // each i is a row
       // Im going to have to change high or low nibble based on the value of i
       sprite_word = machine->MEMORY[machine->I + i];
-
+      sprite_mask = 128;
       // Write each bit in sprite word to //e screen memory
       for(j = 0; j < 8; j++)
       {
@@ -300,13 +299,13 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
           val_to_write = 0x0F;
         }
 
-        x_mem_offset = x / 2;
+        x_mem_offset = x >> 1;
 
-        if((y / 2) < 8)
+        if((y >> 1) < 8)
         {
           y_mem_base = 0x400;
         }
-        else if((y / 2) < 16)
+        else if((y >> 1) < 16)
         {
           y_mem_base = 0x4A8;
         }
@@ -314,7 +313,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
         {
           y_mem_base = 0x450;
         }
-        y_mem_base += (((y / 2) & 7) * 0x80);
+        y_mem_base += (((y >> 1) & 7) * 0x80);
 
         address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
 
@@ -332,6 +331,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
         ++x;
       }
       screen_nibble_high = !screen_nibble_high;
+      x -= 8;
       ++y;
     }
 

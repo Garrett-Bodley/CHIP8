@@ -59,8 +59,6 @@ void log_font(Machine_t* machine)
 
 void chip8(char* path)
 {
-  // uint8_t sprite[2] = { 0xcf, 0xf3 };
-  uint8_t sprite[2] = { 0xaa, 0x55 };
   sys_init(&machine);
   load_file(path, &machine);
   // log_font(&machine);
@@ -120,27 +118,11 @@ void chip8(char* path)
   #elif defined(APPLE2)
     set_double_low_res();
     CLS(&machine);
-    draw_lg80(0, 0);
-    draw_lg80(7, 7);
 
-    // draw_two_sprite_words_lgd80(0, 0, sprite[0], sprite[1]);
-    // draw_lg80(8, 9);
-    // draw_lg80(8, 10);
-    // draw_lg80(8, 11);
-    draw_sprite_words_lg80(0, 1, sprite, 2);
-    // draw_sprite_words_lg80(0, 3, sprite, 2);
-    // draw_sprite_word_lg80(0, 2, sprite[1]);
-
-    // draw_sprite_word_lg80(0, 0, 0xdf);
-    // draw_sprite_word_lg80(0, 1, 0xdf);
-    // draw_sprite_word_lg80(0, 3, 0xdf);
-    // draw_sprite_word_lg80(0, 4, 0xdf);
-    // log_font(&machine);
     while(true)
     {
-      // fetch(&machine, &instruction);
-      // decode(&machine, &instruction);
+      fetch(&machine, &instruction);
+      decode(&machine, &instruction);
     }
-    // printf("Inside chip8.c\n");
   #endif
 }
