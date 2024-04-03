@@ -277,14 +277,19 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
       // each i is a row
       // Im going to have to change high or low nibble based on the value of i
       sprite_word = machine->MEMORY[machine->I + i];
+
       // Write each bit in sprite word to //e screen memory
       for(j = 0; j < 8; j++)
       {
         // each j is a column
-
         // We don't have to do anything if the bit we're looking at is empty
         bit_to_write = sprite_word & sprite_mask;
-        if(bit_to_write == 0) continue;
+        if(bit_to_write == 0) {
+          sprite_mask >>= 1;
+          page2_flag = !page2_flag;
+          ++x;
+          continue;
+        }
 
         // Set soft switch to write to the correct memory page
         set_page_2(page2_flag);
@@ -292,16 +297,16 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
         if(screen_nibble_high){
            val_to_write = 0xF0;
         }else{
-          val_to_write = 0xF;
+          val_to_write = 0x0F;
         }
 
         x_mem_offset = x / 2;
 
-        if((y >> 1) < 8)
+        if((y / 2) < 8)
         {
           y_mem_base = 0x400;
         }
-        else if((y >> 1) < 16)
+        else if((y / 2) < 16)
         {
           y_mem_base = 0x4A8;
         }
@@ -309,7 +314,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
         {
           y_mem_base = 0x450;
         }
-        y_mem_base += (((y >> 1) & 7) * 0x80);
+        y_mem_base += (((y / 2) & 7) * 0x80);
 
         address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
 
@@ -319,7 +324,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
           machine->REGISTERS[0xF] = 1;
         }
 
-        *address_to_write ^= bit_to_write;
+        *address_to_write ^= val_to_write;
 
         // change which page i'm writing to based on the value of J
         sprite_mask >>= 1;
@@ -329,7 +334,6 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
       screen_nibble_high = !screen_nibble_high;
       ++y;
     }
-
 
   #endif
 }

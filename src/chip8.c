@@ -116,9 +116,13 @@ void chip8(char* path)
     quit = sdl_update(&interface);
   }
   #elif defined(APPLE2)
-
     set_double_low_res();
     CLS(&machine);
+    // draw_lg80(8, 8);
+    // draw_sprite_word_lg80(0, 0, 0xdf);
+    // draw_sprite_word_lg80(0, 1, 0xdf);
+    // draw_sprite_word_lg80(0, 3, 0xdf);
+    // draw_sprite_word_lg80(0, 4, 0xdf);
     // log_font(&machine);
     while(true)
     {

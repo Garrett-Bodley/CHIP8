@@ -22,5 +22,6 @@ void set_double_hires(bool flag);
 void draw_lg80(uint8_t x, uint8_t y);
 void clear_40_col_text();
 void switch_text_40();
+void draw_sprite_word_lg80(uint8_t x, uint8_t y, uint8_t sprite_word);
 
 #endif
