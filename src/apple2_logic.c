@@ -154,6 +154,18 @@ void switch_text_80()
   // set_text(true);
 }
 
+void switch_text_40()
+{
+  // This doesn't work. I get a weird jumble of characters and an error message
+  // on the screen when I try to switch back to 40 col text mode
+  // Kind of looks like garbage values tho. Maybe there's a system routine that's getting jumbled by my code?
+  set_mixed(false);
+  set_text(true);
+  set_store_80(false);
+  set_column_80(false);
+  set_double_hires(false);
+}
+
 void set_double_low_res()
 {
   set_text(false);
@@ -183,19 +195,137 @@ void fill_lgd()
 
 void clear_lgd()
 {
-  char *i = (char *)0x400;
-  char *j = (char *)0x428;
-  char *k = (char *)0x450;
-  for (i; i < (char *)0x7a7; i++)
+  char *one = (char *)0x400;
+  char *two = (char *)0x480;
+  char *three = (char *)0x500;
+  char *four = (char *)0x580;
+  char *five = (char *)0x600;
+  char *six = (char *)0x680;
+  char *seven = (char *)0x700;
+  char *eight = (char *)0x780;
+
+  memset(one, 0x00, 120);
+  memset(two, 0x00, 120);
+  memset(three, 0x00, 120);
+  memset(four, 0x00, 120);
+  memset(five, 0x00, 120);
+  memset(six, 0x00, 120);
+  memset(seven, 0x00, 120);
+  memset(eight, 0x00, 120);
+}
+
+void clear_40_col_text()
+{
+  char *one = (char *)0x400;
+  char *two = (char *)0x480;
+  char *three = (char *)0x500;
+  char *four = (char *)0x580;
+  char *five = (char *)0x600;
+  char *six = (char *)0x680;
+  char *seven = (char *)0x700;
+  char *eight = (char *)0x780;
+
+  memset(one, ' ' | 0x80, 120);
+  memset(two, ' ' | 0x80, 120);
+  memset(three, ' ' | 0x80, 120);
+  memset(four, ' ' | 0x80, 120);
+  memset(five, ' ' | 0x80, 120);
+  memset(six, ' ' | 0x80, 120);
+  memset(seven, ' ' | 0x80, 120);
+  memset(eight, ' ' | 0x80, 120);
+}
+
+void draw_lg80(uint8_t x, uint8_t y){
+  uint8_t x_mem_offset, val_to_write;
+  uint16_t y_mem_base;
+  bool screen_nibble_high, page2_flag;
+  uint8_t * address_to_write;
+
+  if( (y & 1) == 0)
   {
-    *i = 0;
+    screen_nibble_high = false;
   }
-  for (j; j < (char *)0x7cf; j++)
+  else
   {
-    *j = 0;
+    screen_nibble_high = true;
   }
-  for (k; k < (char *)0x7f8; k++)
+
+  if(screen_nibble_high){
+    val_to_write = 0xF0;
+  }else{
+    val_to_write = 0xF;
+  }
+
+  if((x & 1) == 0){
+    page2_flag = true;
+  }
+  else
   {
-    *k = 0;
+    page2_flag = false;
   }
+
+  x_mem_offset = x >> 1;
+  if((y >> 1) < 8)
+  {
+    y_mem_base = 0x400;
+  }
+  else if((y >> 1) < 16)
+  {
+    y_mem_base = 0x4A8;
+  }
+  else
+  {
+    y_mem_base = 0x450;
+  }
+  y_mem_base += (((y >> 1) & 7) * 0x80);
+  address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
+  *address_to_write ^= val_to_write;
+}
+
+void draw_sprite_word_lg80(uint8_t x, uint8_t y, uint8_t sprite_word)
+{
+  uint8_t x_mem_offset, val_to_write;
+  uint16_t y_mem_base;
+  bool screen_nibble_high, page2_flag;
+  uint8_t * address_to_write;
+
+  if( (y & 1) == 0)
+  {
+    screen_nibble_high = false;
+  }
+  else
+  {
+    screen_nibble_high = true;
+  }
+
+  if(screen_nibble_high){
+    val_to_write = 0xF0;
+  }else{
+    val_to_write = 0xF;
+  }
+
+  if((x & 1) == 0){
+    page2_flag = true;
+  }
+  else
+  {
+    page2_flag = false;
+  }
+
+  x_mem_offset = x >> 1;
+  if((y >> 1) < 8)
+  {
+    y_mem_base = 0x400;
+  }
+  else if((y >> 1) < 16)
+  {
+    y_mem_base = 0x4A8;
+  }
+  else
+  {
+    y_mem_base = 0x450;
+  }
+  y_mem_base += (((y >> 1) & 7) * 0x80);
+  address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
+  *address_to_write ^= val_to_write;
 }

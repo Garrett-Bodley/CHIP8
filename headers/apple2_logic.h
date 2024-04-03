@@ -19,4 +19,8 @@ void clear_lgd();
 void set_page_2(bool flag);
 void set_double_hires(bool flag);
 
+void draw_lg80(uint8_t x, uint8_t y);
+void clear_40_col_text();
+void switch_text_40();
+
 #endif
