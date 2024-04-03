@@ -23,6 +23,7 @@ void draw_lg80(uint8_t x, uint8_t y);
 void clear_40_col_text();
 void switch_text_40();
 void draw_sprite_word_lg80(uint8_t x, uint8_t y, uint8_t sprite_word);
+void draw_two_sprite_words_lgd80(uint8_t x, uint8_t y, uint8_t sprite_word1, uint8_t sprite_word2);
 void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n);
 
 #endif

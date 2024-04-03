@@ -358,15 +358,145 @@ void draw_sprite_word_lg80(uint8_t x, uint8_t y, uint8_t sprite_word)
   screen_nibble_high = !screen_nibble_high;
 }
 
-void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n)
+void draw_two_sprite_words_lgd80(uint8_t x, uint8_t y, uint8_t sprite_word1, uint8_t sprite_word2)
 {
-  uint8_t j, bit_to_write, sprite_word, val_to_write, x_mem_offset;
-  uint16_t i, y_mem_base;
+  uint8_t i, j, bit_to_write, sprite_word, val_to_write, x_mem_offset;
+  uint16_t y_mem_base;
   uint8_t * address_to_write;
   bool screen_nibble_high;
   bool page2_flag;
 
   uint8_t sprite_mask = 128;
+
+  // Pad for //e screen
+  x += 8;
+  y += 8;
+
+  if ((y & 1) == 0)
+  {
+    screen_nibble_high = false;
+  }else{
+    screen_nibble_high = true;
+  }
+
+  if((x & 1) == 0){
+    page2_flag = true;
+  }else{
+    page2_flag = false;
+  }
+
+  sprite_word = sprite_word1;
+
+  for(j = 0; j < 8; j++)
+  {
+    // each j is a column
+
+    // We don't have to do anything if the bit we're looking at is empty
+    bit_to_write = sprite_word & sprite_mask;
+    if(bit_to_write == 0) {
+      sprite_mask >>= 1;
+      page2_flag = !page2_flag;
+      ++x;
+      continue;
+    }
+
+    // Set soft switch to write to the correct memory page
+    set_page_2(page2_flag);
+    if(screen_nibble_high){
+        val_to_write = 0xF0;
+    }else{
+      val_to_write = 0xF;
+    }
+
+    x_mem_offset = x / 2;
+
+    if((y >> 1) < 8)
+    {
+      y_mem_base = 0x400;
+    }
+    else if((y >> 1) < 16)
+    {
+      y_mem_base = 0x4A8;
+    }
+    else
+    {
+      y_mem_base = 0x450;
+    }
+    y_mem_base += (((y >> 1) & 7) * 0x80);
+
+    address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
+    *address_to_write ^= val_to_write;
+
+    // change which page i'm writing to based on the value of J
+    sprite_mask >>= 1;
+    page2_flag = !page2_flag;
+    ++x;
+  }
+
+  if(screen_nibble_high)
+  {
+    screen_nibble_high = false;
+  }else{
+    screen_nibble_high = true;
+  }
+  x -= 8;
+  y = 9;
+  sprite_mask = 128;
+  sprite_word = sprite_word2;
+  for(j = 0; j < 8; j++)
+  {
+    // each j is a column
+
+    // We don't have to do anything if the bit we're looking at is empty
+    bit_to_write = sprite_word & sprite_mask;
+    if(bit_to_write == 0) {
+      sprite_mask >>= 1;
+      page2_flag = !page2_flag;
+      ++x;
+      continue;
+    }
+
+    // Set soft switch to write to the correct memory page
+    set_page_2(page2_flag);
+    if(screen_nibble_high){
+        val_to_write = 0xF0;
+    }else{
+      val_to_write = 0xF;
+    }
+
+    x_mem_offset = x / 2;
+
+    if((y >> 1) < 8)
+    {
+      y_mem_base = 0x400;
+    }
+    else if((y >> 1) < 16)
+    {
+      y_mem_base = 0x4A8;
+    }
+    else
+    {
+      y_mem_base = 0x450;
+    }
+    y_mem_base += (((y >> 1) & 7) * 0x80);
+
+    address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
+    *address_to_write ^= val_to_write;
+
+    // change which page i'm writing to based on the value of J
+    sprite_mask >>= 1;
+    page2_flag = !page2_flag;
+    ++x;
+  }
+}
+
+void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n)
+{
+  uint8_t j, bit_to_write, sprite_word, val_to_write, x_mem_offset, sprite_mask;
+  uint16_t i, y_mem_base;
+  uint8_t * address_to_write;
+  bool screen_nibble_high;
+  bool page2_flag;
 
   // Pad for //e screen
   x += 8;
@@ -386,6 +516,7 @@ void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n)
 
   for(i = 0; i < n; i++){
     if(i == 1) draw_lg80(40, 0);
+    sprite_mask = 128;
     sprite_word = (uint8_t)sprite[i];
     for(j = 0; j < 8; j++)
     {
@@ -434,6 +565,7 @@ void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n)
     }
     screen_nibble_high = !screen_nibble_high;
     // screen_nibble_high = false;
-    y++;
+    x -= 8;
+    ++y;
   }
 }

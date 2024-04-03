@@ -122,12 +122,14 @@ void chip8(char* path)
     CLS(&machine);
     draw_lg80(0, 0);
     draw_lg80(7, 7);
+
+    // draw_two_sprite_words_lgd80(0, 0, sprite[0], sprite[1]);
     // draw_lg80(8, 9);
     // draw_lg80(8, 10);
     // draw_lg80(8, 11);
     draw_sprite_words_lg80(0, 1, sprite, 2);
     // draw_sprite_words_lg80(0, 3, sprite, 2);
-    draw_sprite_word_lg80(0, 2, sprite[1]);
+    // draw_sprite_word_lg80(0, 2, sprite[1]);
 
     // draw_sprite_word_lg80(0, 0, 0xdf);
     // draw_sprite_word_lg80(0, 1, 0xdf);
