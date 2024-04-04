@@ -59,6 +59,40 @@ void log_font(Machine_t* machine)
 
 void chip8(char* path)
 {
+  // uint8_t sprite[15] = {
+  //   0xff,
+  //   0x00,
+  //   0xff,
+  //   0x00,
+  //   0x3c,
+  //   0x00,
+  //   0x3c,
+  //   0x00,
+  //   0x3c,
+  //   0x00,
+  //   0x3c,
+  //   0x00,
+  //   0xff,
+  //   0x00,
+  //   0xff
+  // };
+  // uint8_t sprite[15] = {
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff,
+  //   0xff
+  // };
   sys_init(&machine);
   load_file(path, &machine);
   // log_font(&machine);

@@ -272,7 +272,7 @@ void draw_lg80(uint8_t x, uint8_t y){
   }
   else if((y >> 1) < 16)
   {
-    y_mem_base = 0x4A8;
+    y_mem_base = 0x428;
   }
   else
   {
@@ -339,7 +339,7 @@ void draw_sprite_word_lg80(uint8_t x, uint8_t y, uint8_t sprite_word)
     }
     else if((y >> 1) < 16)
     {
-      y_mem_base = 0x4A8;
+      y_mem_base = 0x428;
     }
     else
     {
@@ -416,7 +416,7 @@ void draw_two_sprite_words_lgd80(uint8_t x, uint8_t y, uint8_t sprite_word1, uin
     }
     else if((y >> 1) < 16)
     {
-      y_mem_base = 0x4A8;
+      y_mem_base = 0x428;
     }
     else
     {
@@ -472,7 +472,7 @@ void draw_two_sprite_words_lgd80(uint8_t x, uint8_t y, uint8_t sprite_word1, uin
     }
     else if((y >> 1) < 16)
     {
-      y_mem_base = 0x4A8;
+      y_mem_base = 0x428;
     }
     else
     {
@@ -515,7 +515,6 @@ void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n)
   }
 
   for(i = 0; i < n; i++){
-    if(i == 1) draw_lg80(40, 0);
     sprite_mask = 128;
     sprite_word = (uint8_t)sprite[i];
     for(j = 0; j < 8; j++)
@@ -547,7 +546,7 @@ void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n)
       }
       else if((y >> 1) < 16)
       {
-        y_mem_base = 0x4A8;
+        y_mem_base = 0x428;
       }
       else
       {

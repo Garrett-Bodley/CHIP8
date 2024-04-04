@@ -292,7 +292,6 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
 
         // Set soft switch to write to the correct memory page
         set_page_2(page2_flag);
-        val_to_write = 0xF;
         if(screen_nibble_high){
            val_to_write = 0xF0;
         }else{
@@ -307,7 +306,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
         }
         else if((y >> 1) < 16)
         {
-          y_mem_base = 0x4A8;
+          y_mem_base = 0x428;
         }
         else
         {
