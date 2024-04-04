@@ -1,5 +1,6 @@
 #include "../headers/instruction.h"
 #include "../headers/machine.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -337,6 +338,21 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   #endif
 }
 
+void CALL(Machine_t* machine, Instruction_t* instruction)
+{
+  // 2nnn - CALL addr
+  // Call subroutine at nnn.
+
+
+  // The interpreter increments the stack pointer, then puts the current PC on the top of the stack. The PC is then set to nnn.
+
+  machine->STACK[machine->SP] = machine->PC;
+  machine->SP += 1;
+  machine->PC = (*instruction)[0] & 0x0F;
+  machine->PC <<= 8;
+  machine->PC |= (*instruction)[1];
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -353,6 +369,8 @@ void decode(Machine_t* machine, Instruction_t* instruction)
     case 0x1:
       JP(machine, instruction);
       break;
+    case 0x2:
+      CALL(machine, instruction);
     case 0x6:
       LD_Vx(machine, instruction);
       break;
