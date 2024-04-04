@@ -387,6 +387,18 @@ void AND_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] &= machine->REGISTERS[Vy];
 }
 
+void XOR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+{
+  // 8xy3 - XOR Vx, Vy
+  // Set Vx = Vx XOR Vy.
+
+  // Performs a bitwise exclusive OR on the values of Vx and Vy, then stores the result in Vx. An exclusive OR compares the
+  // corrseponding bits from two values, and if the bits are not both the same, then the corresponding bit in the result is set to 1.
+  // Otherwise, it is 0.
+
+  machine->REGISTERS[Vx] ^= machine->REGISTERS[Vy];
+}
+
 void decode_ALU(Machine_t* machine, Instruction_t* instruction)
 {
   uint8_t Vx, Vy, low_nibble;
@@ -405,6 +417,9 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x2:
       AND_Vx_Vy(machine, instruction, Vx, Vy);
+      break;
+    case 0x3:
+      XOR_Vx_Vy(machine, instruction, Vx, Vy);
       break;
   }
 }
