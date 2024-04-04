@@ -261,3 +261,42 @@ Test(ALU, SHR_Vx_Vy)
   cr_expect(machine.REGISTERS[0x5] == 0x05, "Expected REGISTERS[0x5] to contain value 0x05, found 0x%02x", machine.REGISTERS[0x5]);
   cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to contain value 0x01, found 0x%02x", machine.REGISTERS[0xF]);
 }
+
+Test(ALU, SHL_Vx_Vy)
+{
+  // This honors the original CHIP-8 spec.
+  // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
+
+  // 8xyE - SHL Vx, Vy
+  // Set Vx = Vx SHL 1.
+
+  // First put the value in Vy in Vx.
+  // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+
+  instruction[0] = 0x80;
+  instruction[1] = 0x1E;
+  machine.REGISTERS[0x0] = 0xff;
+  machine.REGISTERS[0x1] = 0x03;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x0] == 0x06, "Expected REGSISTERS[0x0] to contain value 0x06, found 0x%02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0xF] == 0x00, "Expected REGISTERS[0xF] to contain value 0x00, found 0x%02x", machine.REGISTERS[0xF]);
+
+  instruction[0] = 0x8A;
+  instruction[1] = 0xBE;
+  machine.REGISTERS[0xA] = 0xff;
+  machine.REGISTERS[0xB] = 0x81;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0xA] == 0x02, "Expected REGISTERS[0xA] to contain value 0x02, found 0x%02x", machine.REGISTERS[0xA]);
+  cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to contain value 0x01, found 0x%02x", machine.REGISTERS[0xF]);
+
+  instruction[0] = 0x85;
+  instruction[1] = 0x6E;
+  machine.REGISTERS[0x5] = 0xff;
+  machine.REGISTERS[0x6] = 0xfe;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x5] == 0xfc, "Expected REGISTERS[0x5] to contain value 0x05, found 0x%02x", machine.REGISTERS[0x5]);
+  cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to contain value 0x01, found 0x%02x", machine.REGISTERS[0xF]);
+}

@@ -452,6 +452,26 @@ void SHR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] >>= 1;
 }
 
+void SHL_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy){
+  // This honors the original CHIP-8 spec.
+  // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
+
+  // 8xyE - SHL Vx, Vy
+  // Set Vx = Vx SHL 1.
+
+  // First put the value in Vy in Vx.
+  // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
+
+  machine->REGISTERS[Vx]= machine->REGISTERS[Vy];
+  if((machine->REGISTERS[Vx] & 0x80) > 0){
+    machine->REGISTERS[0xF] = 1;
+  }else{
+    machine->REGISTERS[0xF] = 0;
+  }
+  machine->REGISTERS[Vx] &= 0x7f; // Clear MSB to prevent overflow/"roll over" behavior
+  machine->REGISTERS[Vx] <<= 1;
+}
+
 void decode_ALU(Machine_t* machine, Instruction_t* instruction)
 {
   uint8_t Vx, Vy, low_nibble;
@@ -482,6 +502,9 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x6:
       SHR_Vx_Vy(machine, instruction, Vx, Vy);
+      break;
+    case 0xe:
+      SHL_Vx_Vy(machine, instruction, Vx, Vy);
       break;
   }
 }
