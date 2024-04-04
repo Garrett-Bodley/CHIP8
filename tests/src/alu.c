@@ -55,20 +55,22 @@ Test(ALU, OR_Vx_Vy)
   machine.REGISTERS[0x1] = 0x01;
   decode(&machine, &instruction);
 
-  cr_expect(machine.REGISTERS[0x0] == 0x01, "Expected REGSISTERS[0x0] to contain value 0x01, found %02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0x0] == 0x01, "Expected REGSISTERS[0x0] to contain value 0x01, found 0x%02x", machine.REGISTERS[0x0]);
 
   instruction[0] = 0x8A;
   instruction[1] = 0xB1;
   machine.REGISTERS[0xA] = 0x02;
   machine.REGISTERS[0xB] = 0x01;
+  decode(&machine, &instruction);
 
-  cr_expect(machine.REGISTERS[0xA] == 0x03, "Expected REGISTERS[0xA] to contain value 0x03, found %02x", machine.REGISTERS[0xA]);
+  cr_expect(machine.REGISTERS[0xA] == 0x03, "Expected REGISTERS[0xA] to contain value 0x03, found 0x%02x", machine.REGISTERS[0xA]);
 
   instruction[0] = 0x85;
   instruction[1] = 0x61;
   machine.REGISTERS[0x5] = 0x06;
   machine.REGISTERS[0x6] = 0x02;
+  decode(&machine, &instruction);
 
-  cr_expect(machine.REGISTERS[0x5] == 0x06, "Expected REGISTERS[0x5] to contain value 0x06, found %02x", machine.REGISTERS[0xA]);
+  cr_expect(machine.REGISTERS[0x5] == 0x06, "Expected REGISTERS[0x5] to contain value 0x06, found 0x%02x", machine.REGISTERS[0x5]);
 
 }
