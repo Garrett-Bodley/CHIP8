@@ -399,6 +399,25 @@ void XOR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] ^= machine->REGISTERS[Vy];
 }
 
+void ADD_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+{
+  // 8xy4 - ADD Vx, Vy
+  // Set Vx = Vx + Vy, set VF = carry.
+
+  // The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0.
+  // Only the lowest 8 bits of the result are kept, and stored in Vx.
+
+  // Must do some trickery because C integers "roll over"
+  uint16_t result = machine->REGISTERS[Vx] + machine->REGISTERS[Vy];
+  if(result >> 8 > 0)
+  {
+    machine->REGISTERS[0xF] = 1;
+  }else{
+    machine->REGISTERS[0xF] = 0;
+  }
+  machine->REGISTERS[Vx] = (uint8_t)(result & 0xFF);
+}
+
 void decode_ALU(Machine_t* machine, Instruction_t* instruction)
 {
   uint8_t Vx, Vy, low_nibble;
@@ -420,6 +439,9 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x3:
       XOR_Vx_Vy(machine, instruction, Vx, Vy);
+      break;
+    case 0x4:
+      ADD_Vx_Vy(machine, instruction, Vx, Vy);
       break;
   }
 }
