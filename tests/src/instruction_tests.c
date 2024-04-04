@@ -22,10 +22,31 @@ Test(Instruction, JP)
 
 Test(Instruction, LD_Vx)
 {
-  instruction[0] = 0x6a;
-  instruction[1] = 0x15;
+  instruction[0] = 0x60;
+  instruction[1] = 0x12;
+
   decode(&machine, &instruction);
-  cr_assert(machine.REGISTERS[0xA] == 0x15, "Expected register 0xA to contain value 0x15, found %02X.", machine.REGISTERS[0xA]);
+  cr_expect(machine.REGISTERS[0x0] == 0x12, "Expected register 0x0 to have value of 0x12, found %02x", machine.REGISTERS[0x0]);
+
+  instruction[0] = 0x61;
+  instruction[1] = 0x34;
+  decode(&machine, &instruction);
+  cr_expect(machine.REGISTERS[0x0] == 0x12, "Expected register 0x0 to have value of 0x12, found %02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0x1] == 0x34, "Expected register 0x1 to have value of 0x34, found %02x", machine.REGISTERS[0x1]);
+
+  instruction[0] = 0x62;
+  instruction[1] = 0x56;
+  decode(&machine, &instruction);
+  cr_expect(machine.REGISTERS[0x0] == 0x12, "Expected register 0x0 to have value of 0x12, found %02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0x1] == 0x34, "Expected register 0x1 to have value of 0x34, found %02x", machine.REGISTERS[0x1]);
+  cr_expect(machine.REGISTERS[0x2] == 0x56, "Expected register 0x2 to have value of 0x56, found %02x", machine.REGISTERS[0x2]);
+
+  instruction[0] = 0x60;
+  instruction[1] = 0x78;
+  decode(&machine, &instruction);
+  cr_expect(machine.REGISTERS[0x0] == 0x78, "Expected register 0x0 to have value of 0x78, found %02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0x1] == 0x34, "Expected register 0x1 to have value of 0x34, found %02x", machine.REGISTERS[0x1]);
+  cr_expect(machine.REGISTERS[0x2] == 0x56, "Expected register 0x2 to have value of 0x56, found %02x", machine.REGISTERS[0x2]);
 }
 
 Test(Instruction, ADD_Vx)
