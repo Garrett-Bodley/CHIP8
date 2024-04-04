@@ -366,6 +366,21 @@ void LD_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
   machine->REGISTERS[Vx] = machine->REGISTERS[Vy];
 }
 
+void OR_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
+{
+  // 8xy1 - OR Vx, Vy
+  // Set Vx = Vx OR Vy.
+
+  // Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx. A bitwise OR compares the
+  // corrseponding bits from two values, and if either bit is 1, then the same bit in the result is also 1.
+  // Otherwise, it is 0.
+
+  uint8_t Vx, Vy;
+  Vx = (*instruction)[0] & 0xF;
+  Vy = ((*instruction)[1] & 0xF0) >> 4;
+  machine->REGISTERS[Vx] |= machine->REGISTERS[Vy];
+}
+
 void decode_ALU(Machine_t* machine, Instruction_t* instruction)
 {
   uint8_t low_nibble = (*instruction)[1] & 0xF;
@@ -373,6 +388,9 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
   {
     case 0x0:
       LD_Vx_Vy(machine, instruction);
+      break;
+    case 0x1:
+      OR_Vx_Vy(machine, instruction);
       break;
   }
 }
