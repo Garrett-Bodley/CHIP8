@@ -302,17 +302,17 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
 
         if((y >> 1) < 8)
         {
-          y_mem_base = 0x400;
+          y_mem_base = FIRST_SCREEN_THIRD;
         }
         else if((y >> 1) < 16)
         {
-          y_mem_base = 0x428;
+          y_mem_base = SECOND_SCREEN_THIRD;
         }
         else
         {
-          y_mem_base = 0x450;
+          y_mem_base = LAST_SCREEN_THIRD;
         }
-        y_mem_base += (((y >> 1) & 7) * 0x80);
+        y_mem_base += (((y >> 1) & 7) * SCREEN_ROW_OFFSET);
 
         address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
 

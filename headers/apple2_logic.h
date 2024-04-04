@@ -2,6 +2,11 @@
 #define APPLE2_LOGIC_H
 #include <stdbool.h>
 
+#define FIRST_SCREEN_THIRD 0x400
+#define SECOND_SCREEN_THIRD 0x428
+#define LAST_SCREEN_THIRD 0x450
+#define SCREEN_ROW_OFFSET 0x80
+
 void set_mixed(bool flag);
 void set_text(bool flag);
 void set_column_80(bool flag);
