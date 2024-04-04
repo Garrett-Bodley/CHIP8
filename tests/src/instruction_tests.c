@@ -94,6 +94,6 @@ Test(Instruction, CALL)
 
   cr_expect(machine.SP == old_SP + 1, "Expected SP to be incremented");
   cr_expect(machine.STACK[machine.SP - 1] == old_PC, "Expected STACK[SP - 1] to be old PC value");
-  cr_expect(machine.SP == 0x333, "Expected SP to be set to new value 0x333");
+  cr_expect(machine.PC == 0x333, "Expected PC to be set to new value 0x333, got 0x%03x", machine.PC);
 }
 
