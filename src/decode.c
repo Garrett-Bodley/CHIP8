@@ -433,6 +433,25 @@ void SUB_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] -= machine->REGISTERS[Vy];
 }
 
+void SHR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy){
+  // This honors the original CHIP-8 spec.
+  // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
+
+  // 8xy6 - SHR Vx, Vy
+  // Set Vx = Vy SHR 1.
+
+  // First put the value in Vy in Vx.
+  // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
+
+  machine->REGISTERS[Vx]= machine->REGISTERS[Vy];
+  if((machine->REGISTERS[Vx] & 1) > 0){
+    machine->REGISTERS[0xF] = 1;
+  }else{
+    machine->REGISTERS[0xF] = 0;
+  }
+  machine->REGISTERS[Vx] >>= 1;
+}
+
 void decode_ALU(Machine_t* machine, Instruction_t* instruction)
 {
   uint8_t Vx, Vy, low_nibble;
@@ -460,6 +479,10 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x5:
       SUB_Vx_Vy(machine, instruction, Vx, Vy);
+      break;
+    case 0x6:
+      SHR_Vx_Vy(machine, instruction, Vx, Vy);
+      break;
   }
 }
 
