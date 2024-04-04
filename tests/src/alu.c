@@ -124,7 +124,7 @@ Test(ALU, XOR_Vx_Vy)
   machine.REGISTERS[0x1] = 0x01;
   decode(&machine, &instruction);
 
-  cr_expect(machine.REGISTERS[0x0] == 0x02, "Expected REGSISTERS[0x0] to contain value 0x01, found 0x%02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0x0] == 0x02, "Expected REGSISTERS[0x0] to contain value 0x02, found 0x%02x", machine.REGISTERS[0x0]);
 
   instruction[0] = 0x8A;
   instruction[1] = 0xB3;
@@ -140,5 +140,50 @@ Test(ALU, XOR_Vx_Vy)
   machine.REGISTERS[0x6] = 0x02;
   decode(&machine, &instruction);
 
-  cr_expect(machine.REGISTERS[0x5] == 0x08, "Expected REGISTERS[0x5] to contain value 0x06, found 0x%02x", machine.REGISTERS[0x5]);
+  cr_expect(machine.REGISTERS[0x5] == 0x08, "Expected REGISTERS[0x5] to contain value 0x08, found 0x%02x", machine.REGISTERS[0x5]);
+}
+
+Test(ALU, ADD_Vx_Vy)
+{
+  // 8xy4 - ADD Vx, Vy
+  // Set Vx = Vx + Vy, set VF = carry.
+
+  // The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0.
+  // Only the lowest 8 bits of the result are kept, and stored in Vx.
+
+  instruction[0] = 0x80;
+  instruction[1] = 0x14;
+  machine.REGISTERS[0x0] = 0x03;
+  machine.REGISTERS[0x1] = 0x01;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x0] == 0x04, "Expected REGSISTERS[0x0] to contain value 0x04, found 0x%02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0xF] == 0x00, "Expected REGISTERS[0xF] to contain value 0x0a, found 0x%02x", machine.REGISTERS[0x5]);
+
+  instruction[0] = 0x8A;
+  instruction[1] = 0xB4;
+  machine.REGISTERS[0xA] = 0x00;
+  machine.REGISTERS[0xB] = 0x01;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0xA] == 0x01, "Expected REGISTERS[0xA] to contain value 0x01, found 0x%02x", machine.REGISTERS[0xA]);
+  cr_expect(machine.REGISTERS[0xF] == 0x00, "Expected REGISTERS[0xF] to contain value 0x0a, found 0x%02x", machine.REGISTERS[0x5]);
+
+  instruction[0] = 0x85;
+  instruction[1] = 0x64;
+  machine.REGISTERS[0x5] = 0x05;
+  machine.REGISTERS[0x6] = 0x05;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x5] == 0x0a, "Expected REGISTERS[0x5] to contain value 0x0a, found 0x%02x", machine.REGISTERS[0x5]);
+  cr_expect(machine.REGISTERS[0xF] == 0x00, "Expected REGISTERS[0xF] to contain value 0x0a, found 0x%02x", machine.REGISTERS[0x5]);
+
+  instruction[0] = 0x85;
+  instruction[1] = 0x64;
+  machine.REGISTERS[0x5] = 0xff;
+  machine.REGISTERS[0x6] = 0x03;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x5] == 0x02, "Expected REGISTERS[0x5] to contain value 0x02, found 0x%02x", machine.REGISTERS[0x5]);
+  cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to contain value 0x01, found 0x%02x", machine.REGISTERS[0x5]);
 }
