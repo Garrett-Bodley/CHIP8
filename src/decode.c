@@ -353,20 +353,17 @@ void CALL(Machine_t* machine, Instruction_t* instruction)
   machine->PC |= (*instruction)[1];
 }
 
-void LD_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
+void LD_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
 {
   // 8xy0 - LD Vx, Vy
   // Set Vx = Vy.
 
   // Stores the value of register Vy in register Vx.
 
-  uint8_t Vx, Vy;
-  Vx = (*instruction)[0] & 0xF;
-  Vy = ((*instruction)[1] & 0xF0) >> 4;
   machine->REGISTERS[Vx] = machine->REGISTERS[Vy];
 }
 
-void OR_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
+void OR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
 {
   // 8xy1 - OR Vx, Vy
   // Set Vx = Vx OR Vy.
@@ -375,22 +372,39 @@ void OR_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
   // corrseponding bits from two values, and if either bit is 1, then the same bit in the result is also 1.
   // Otherwise, it is 0.
 
-  uint8_t Vx, Vy;
-  Vx = (*instruction)[0] & 0xF;
-  Vy = ((*instruction)[1] & 0xF0) >> 4;
   machine->REGISTERS[Vx] |= machine->REGISTERS[Vy];
+}
+
+void AND_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+{
+  // 8xy2 - AND Vx, Vy
+  // Set Vx = Vx AND Vy.
+
+  // Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx. A bitwise AND compares the
+  // corrseponding bits from two values, and if both bits are 1, then the same bit in the result is also 1.
+  // Otherwise, it is 0.
+
+  machine->REGISTERS[Vx] &= machine->REGISTERS[Vy];
 }
 
 void decode_ALU(Machine_t* machine, Instruction_t* instruction)
 {
-  uint8_t low_nibble = (*instruction)[1] & 0xF;
+  uint8_t Vx, Vy, low_nibble;
+
+  low_nibble = (*instruction)[1] & 0xF;
+  Vx = (*instruction)[0] & 0xF;
+  Vy = ((*instruction)[1] & 0xF0) >> 4;
+
   switch(low_nibble)
   {
     case 0x0:
-      LD_Vx_Vy(machine, instruction);
+      LD_Vx_Vy(machine, instruction, Vx, Vy);
       break;
     case 0x1:
-      OR_Vx_Vy(machine, instruction);
+      OR_Vx_Vy(machine, instruction, Vx, Vy);
+      break;
+    case 0x2:
+      AND_Vx_Vy(machine, instruction, Vx, Vy);
       break;
   }
 }
