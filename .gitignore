@@ -4,3 +4,6 @@ tests/bin/*
 tests/obj/*
 
 src/apple_rom.c
+
+.vscode
+.DS_Store
