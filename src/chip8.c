@@ -59,73 +59,8 @@ void log_font(Machine_t* machine)
 
 void chip8(char* path)
 {
-  // uint8_t sprite[15] = {
-  //   0xff,
-  //   0x00,
-  //   0xff,
-  //   0x00,
-  //   0x3c,
-  //   0x00,
-  //   0x3c,
-  //   0x00,
-  //   0x3c,
-  //   0x00,
-  //   0x3c,
-  //   0x00,
-  //   0xff,
-  //   0x00,
-  //   0xff
-  // };
-  // uint8_t sprite[15] = {
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff,
-  //   0xff
-  // };
   sys_init(&machine);
   load_file(path, &machine);
-  // log_font(&machine);
-  // log_rom(&machine);
-  // switch_lgd_80(true);
-  // CLS(&machine);
-  // fill_lgd();
-
-  // apple_sleep(1);
-  // switch_text_80(true);
-  // apple_sleep(1);
-  // char *i = (char *)0x400; // first third of screen memory
-  // char *j = (char *)0x428; // second third of screen memory
-  // char *k = (char *)0x450; // last third of screen memory
-
-  // // High nibble is the low row
-  // // Low nibble is the high row
-  // set_double_low_res();
-  // memset(i, 0x0f, 935);
-  // memset(j, 0x0f, 935);
-  // memset(k, 0x0f, 936);
-  // set_page_2(true);
-  // memset(i, 0x0f, 935);
-  // memset(j, 0x0f, 935);
-  // memset(k, 0x0f, 936);
-  // // CLS(&machine);
-  // apple_sleep(1);
-  // clear_lgd();
-  // uint16_t* iou = 0xC07E;
-  // set_double_res(true);
-
-  // printf("IOU Value: %d", (uint8_t)*iou & 128);
-
 
   #ifdef DEBUG
   log_memory(&machine);
