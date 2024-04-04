@@ -353,6 +353,30 @@ void CALL(Machine_t* machine, Instruction_t* instruction)
   machine->PC |= (*instruction)[1];
 }
 
+void LD_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
+{
+  // 8xy0 - LD Vx, Vy
+  // Set Vx = Vy.
+
+  // Stores the value of register Vy in register Vx.
+
+  uint8_t Vx, Vy;
+  Vx = (*instruction)[0] & 0xF;
+  Vy = ((*instruction)[1] & 0xF0) >> 4;
+  machine->REGISTERS[Vx] = machine->REGISTERS[Vy];
+}
+
+void decode_ALU(Machine_t* machine, Instruction_t* instruction)
+{
+  uint8_t low_nibble = (*instruction)[1] & 0xF;
+  switch(low_nibble)
+  {
+    case 0x0:
+      LD_Vx_Vy(machine, instruction);
+      break;
+  }
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -376,6 +400,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x7:
       ADD_Vx(machine, instruction);
+      break;
+    case 0x8:
+      decode_ALU(machine, instruction);
       break;
     case 0xA:
       LD_I(machine, instruction);
