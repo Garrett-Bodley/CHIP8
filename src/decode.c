@@ -418,6 +418,21 @@ void ADD_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] = (uint8_t)(result & 0xFF);
 }
 
+void SUB_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+{
+  // 8xy5 - SUB Vx, Vy
+  // Set Vx = Vx - Vy, set VF = NOT borrow.
+
+  // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+  if(machine->REGISTERS[Vx] > machine->REGISTERS[Vy])
+  {
+    machine->REGISTERS[0xF] = 1;
+  }else{
+    machine->REGISTERS[0xF] = 0;
+  }
+  machine->REGISTERS[Vx] -= machine->REGISTERS[Vy];
+}
+
 void decode_ALU(Machine_t* machine, Instruction_t* instruction)
 {
   uint8_t Vx, Vy, low_nibble;
@@ -443,6 +458,8 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
     case 0x4:
       ADD_Vx_Vy(machine, instruction, Vx, Vy);
       break;
+    case 0x5:
+      SUB_Vx_Vy(machine, instruction, Vx, Vy);
   }
 }
 

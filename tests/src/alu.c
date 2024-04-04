@@ -187,3 +187,38 @@ Test(ALU, ADD_Vx_Vy)
   cr_expect(machine.REGISTERS[0x5] == 0x02, "Expected REGISTERS[0x5] to contain value 0x02, found 0x%02x", machine.REGISTERS[0x5]);
   cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to contain value 0x01, found 0x%02x", machine.REGISTERS[0x5]);
 }
+
+Test(ALU, SUB_Vx_Vy)
+{
+  // 8xy5 - SUB Vx, Vy
+  // Set Vx = Vx - Vy, set VF = NOT borrow.
+
+  // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+
+  instruction[0] = 0x80;
+  instruction[1] = 0x15;
+  machine.REGISTERS[0x0] = 0x03;
+  machine.REGISTERS[0x1] = 0x01;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x0] == 0x02, "Expected REGSISTERS[0x0] to contain value 0x02, found 0x%02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to contain value 0x01, found 0x%02x", machine.REGISTERS[0x5]);
+
+  instruction[0] = 0x8A;
+  instruction[1] = 0xB5;
+  machine.REGISTERS[0xA] = 0x05;
+  machine.REGISTERS[0xB] = 0x01;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0xA] == 0x04, "Expected REGISTERS[0xA] to contain value 0x04, found 0x%02x", machine.REGISTERS[0xA]);
+  cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to contain value 0x01, found 0x%02x", machine.REGISTERS[0x5]);
+
+  instruction[0] = 0x85;
+  instruction[1] = 0x65;
+  machine.REGISTERS[0x5] = 0x03;
+  machine.REGISTERS[0x6] = 0x04;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x5] == 0xFF, "Expected REGISTERS[0x5] to contain value 0xFF, found 0x%02x", machine.REGISTERS[0x5]);
+  cr_expect(machine.REGISTERS[0xF] == 0x00, "Expected REGISTERS[0xF] to contain value 0x00, found 0x%02x", machine.REGISTERS[0x5]);
+}
