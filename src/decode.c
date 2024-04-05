@@ -353,7 +353,7 @@ void CALL(Machine_t* machine, Instruction_t* instruction)
   machine->PC |= (*instruction)[1];
 }
 
-void LD_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+void LD_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
 {
   // 8xy0 - LD Vx, Vy
   // Set Vx = Vy.
@@ -363,7 +363,7 @@ void LD_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_
   machine->REGISTERS[Vx] = machine->REGISTERS[Vy];
 }
 
-void OR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+void OR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
 {
   // 8xy1 - OR Vx, Vy
   // Set Vx = Vx OR Vy.
@@ -375,7 +375,7 @@ void OR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_
   machine->REGISTERS[Vx] |= machine->REGISTERS[Vy];
 }
 
-void AND_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+void AND_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
 {
   // 8xy2 - AND Vx, Vy
   // Set Vx = Vx AND Vy.
@@ -387,7 +387,7 @@ void AND_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] &= machine->REGISTERS[Vy];
 }
 
-void XOR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+void XOR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
 {
   // 8xy3 - XOR Vx, Vy
   // Set Vx = Vx XOR Vy.
@@ -399,7 +399,7 @@ void XOR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] ^= machine->REGISTERS[Vy];
 }
 
-void ADD_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+void ADD_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
 {
   // 8xy4 - ADD Vx, Vy
   // Set Vx = Vx + Vy, set VF = carry.
@@ -418,7 +418,7 @@ void ADD_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] = (uint8_t)(result & 0xFF);
 }
 
-void SUB_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy)
+void SUB_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
 {
   // 8xy5 - SUB Vx, Vy
   // Set Vx = Vx - Vy, set VF = NOT borrow.
@@ -433,7 +433,7 @@ void SUB_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] -= machine->REGISTERS[Vy];
 }
 
-void SHR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy){
+void SHR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy){
   // This honors the original CHIP-8 spec.
   // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
 
@@ -452,7 +452,7 @@ void SHR_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8
   machine->REGISTERS[Vx] >>= 1;
 }
 
-void SHL_Vx_Vy(Machine_t* machine, Instruction_t* instruction, uint8_t Vx, uint8_t Vy){
+void SHL_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy){
   // This honors the original CHIP-8 spec.
   // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
 
@@ -483,28 +483,28 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
   switch(low_nibble)
   {
     case 0x0:
-      LD_Vx_Vy(machine, instruction, Vx, Vy);
+      LD_Vx_Vy(machine, Vx, Vy);
       break;
     case 0x1:
-      OR_Vx_Vy(machine, instruction, Vx, Vy);
+      OR_Vx_Vy(machine, Vx, Vy);
       break;
     case 0x2:
-      AND_Vx_Vy(machine, instruction, Vx, Vy);
+      AND_Vx_Vy(machine, Vx, Vy);
       break;
     case 0x3:
-      XOR_Vx_Vy(machine, instruction, Vx, Vy);
+      XOR_Vx_Vy(machine, Vx, Vy);
       break;
     case 0x4:
-      ADD_Vx_Vy(machine, instruction, Vx, Vy);
+      ADD_Vx_Vy(machine, Vx, Vy);
       break;
     case 0x5:
-      SUB_Vx_Vy(machine, instruction, Vx, Vy);
+      SUB_Vx_Vy(machine, Vx, Vy);
       break;
     case 0x6:
-      SHR_Vx_Vy(machine, instruction, Vx, Vy);
+      SHR_Vx_Vy(machine, Vx, Vy);
       break;
     case 0xe:
-      SHL_Vx_Vy(machine, instruction, Vx, Vy);
+      SHL_Vx_Vy(machine, Vx, Vy);
       break;
   }
 }
