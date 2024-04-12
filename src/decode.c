@@ -659,6 +659,17 @@ void LD_ST_Vx(Machine_t* machine, Instruction_t* instruction)
   machine->SOUND_TIMER = machine->REGISTERS[Vx];
 }
 
+void ADD_I_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx1E - ADD I, Vx
+  // Set I = I + Vx.
+
+  // The values of I and Vx are added, and the results are stored in I.
+
+  uint8_t Vx = (*instruction)[0] & 0xF;
+  machine->I += machine->REGISTERS[Vx];
+}
+
 void decode_0xF(Machine_t* machine, Instruction_t* instruction)
 {
   switch((*instruction)[1])
@@ -671,6 +682,9 @@ void decode_0xF(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x18:
       LD_ST_Vx(machine, instruction);
+      break;
+    case 0x1E:
+      ADD_I_Vx(machine, instruction);
       break;
   }
 }

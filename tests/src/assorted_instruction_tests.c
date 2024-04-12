@@ -238,3 +238,19 @@ Test(Assorted, LD_ST_Vx)
   cr_expect(machine.SOUND_TIMER == 0xFF, "Expected SOUND_TIMER to be set to 0xFF, found 0x%02x", machine.SOUND_TIMER);
 }
 
+Test(Assorted, ADD_I_Vx)
+{
+  // Fx1E - ADD I, Vx
+  // Set I = I + Vx.
+
+  // The values of I and Vx are added, and the results are stored in I.
+
+  instruction[0] = 0xF0;
+  instruction[1] = 0x1E;
+  machine.I = 0x111;
+  machine.REGISTERS[0x0] = 0x22;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.I == 0x133, "Expected I to be set to 0x133, found 0x%03x", machine.I);
+}
