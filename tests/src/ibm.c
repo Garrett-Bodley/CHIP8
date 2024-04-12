@@ -16,6 +16,11 @@ void setup(void)
 
 Test(IBM, JP)
 {
+  // 1nnn - JP addr
+  // Jump to location nnn.
+
+  // The interpreter sets the program counter to nnn.
+
   instruction[0] = 0x1F;
   instruction[1] = 0xFF;
   decode(&machine, &instruction);
@@ -24,6 +29,10 @@ Test(IBM, JP)
 
 Test(IBM, LD_Vx)
 {
+  // Set Vx = kk.
+
+  // The interpreter puts the value kk into register Vx.
+
   instruction[0] = 0x60;
   instruction[1] = 0x12;
 
@@ -53,6 +62,11 @@ Test(IBM, LD_Vx)
 
 Test(IBM, ADD_Vx)
 {
+  // 7xkk - ADD Vx, byte
+  // Set Vx = Vx + kk.
+
+  // Adds the value kk to the value of register Vx, then stores the result in Vx.
+
   instruction[0] = 0x7A;
   instruction[1] = 0x12;
   decode(&machine, &instruction);
@@ -65,6 +79,11 @@ Test(IBM, ADD_Vx)
 
 Test(IBM, LD_I)
 {
+  // Annn - LD I, addr
+  // Set I = nnn.
+
+  // The value of register I is set to nnn.
+
   instruction[0] = 0xA1;
   instruction[1] = 0x23;
   decode(&machine, &instruction);
@@ -73,6 +92,12 @@ Test(IBM, LD_I)
 
 Test(IBM, RET)
 {
+  // 00EE - RET
+  // Return from a subroutine.
+
+  // The interpreter sets the program counter to the address at the top of the stack,
+  // then subtracts 1 from the stack pointer.
+
   instruction[0] = 0x00;
   instruction[1] = 0xEE;
 
@@ -85,6 +110,9 @@ Test(IBM, RET)
 
 Test(IBM, CLS)
 {
+  // 00E0 - CLS
+  // Clear the display.
+
   // Init SDL Surface
   SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormat(0 , 64, 32, 1, SDL_PIXELFORMAT_INDEX1MSB);
   machine.SCREEN = surface;
