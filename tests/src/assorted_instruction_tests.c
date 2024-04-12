@@ -142,3 +142,30 @@ Test(Assorted, SNE_Vx_Vy)
   cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x00, found 0x%02x", machine.PC);
 }
 
+Test(Assorted, JP_V0)
+{
+  // Bnnn - JP V0, addr
+  // Jump to location nnn + V0.
+
+  // The program counter is set to nnn plus the value of V0.
+
+  instruction[0] = 0xB1;
+  instruction[1] = 0x11;
+  machine.REGISTERS[0x0] = 0x11;
+  machine.PC = 0x000;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x122, "Expected PC to be set to 0x222, found 0x%03x", machine.PC);
+
+  instruction[0] = 0xB1;
+  instruction[1] = 0x23;
+  machine.REGISTERS[0x0] = 0x11;
+  machine.PC = 0x000;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x134, "Expected PC to be set to 0x134, found 0x%03x", machine.PC);
+
+}
+

@@ -603,6 +603,17 @@ void SNE_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
   }
 }
 
+void JP_V0(Machine_t* machine, Instruction_t* instruction)
+{
+  // Bnnn - JP V0, addr
+  // Jump to location nnn + V0.
+
+  // The program counter is set to nnn plus the value of V0.
+
+  uint16_t nnn = (((*instruction)[0] & 0x0F) << 8) + (*instruction)[1];
+  machine->PC = machine->REGISTERS[0x0] + nnn;
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -646,6 +657,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
     case 0xA:
       LD_I(machine, instruction);
       break;
+    case 0xB:
+      JP_V0(machine, instruction);
+      break;
     case 0xD:
       DRW_VX_VY(machine, instruction);
       break;
@@ -673,8 +687,8 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 // X --- 8xy6 - SHR Vx {, Vy}
 // X --- 8xy7 - SUBN Vx, Vy
 // X --- 8xyE - SHL Vx {, Vy}
-// O --- 9xy0 - SNE Vx, Vy
-// O --- Annn - LD I, addr
+// X --- 9xy0 - SNE Vx, Vy
+// X --- Annn - LD I, addr
 // O --- Bnnn - JP V0, addr
 // O --- Cxkk - RND Vx, byte
 // X --- Dxyn - DRW Vx, Vy, nibble
