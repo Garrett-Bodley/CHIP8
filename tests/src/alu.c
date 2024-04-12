@@ -223,6 +223,36 @@ Test(ALU, SUB_Vx_Vy)
   cr_expect(machine.REGISTERS[0xF] == 0x00, "Expected REGISTERS[0xF] to contain value 0x00, found 0x%02x", machine.REGISTERS[0xF]);
 }
 
+Test(ALU, SUBN_Vx_Vy)
+{
+  // 8xy7 - SUBN Vx, Vy
+  // Set Vx = Vy - Vx, set VF = NOT borrow.
+
+  // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy,
+  // and the results stored in Vx.
+
+  machine.REGISTERS[0x0] = 1;
+  machine.REGISTERS[0x1] = 4;
+
+  instruction[0] = 0x80;
+  instruction[1] = 0x17;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0x0] == 0x03, "Expected REGISTERS[0x0] to contain value 0x03, found 0x%02x", machine.REGISTERS[0x0]);
+  cr_expect(machine.REGISTERS[0xF] == 0x01, "Expected REGISTERS[0xF] to containe value 0x01, found 0x%02x", machine.REGISTERS[0xF]);
+
+  machine.REGISTERS[0xA] = 4;
+  machine.REGISTERS[0xB] = 2;
+
+  instruction[0] = 0x8A;
+  instruction[1] = 0xB7;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.REGISTERS[0xA] == 0xFE, "Expected REGISTERS[0xA] to contain value 0xFE, found 0x%02x", machine.REGISTERS[0xA]);
+  cr_expect(machine.REGISTERS[0xF] == 0x00, "Expected REGISTERS[0xF] to containe value 0x00, found 0x%02x", machine.REGISTERS[0xF]);
+}
+
 Test(ALU, SHR_Vx_Vy)
 {
   // This honors the original CHIP-8 spec.

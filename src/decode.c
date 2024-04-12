@@ -209,6 +209,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
     }
   }
   #elif defined(APPLE2)
+
     // Dxyn - DRW Vx, Vy, nibble
     // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
 
@@ -433,6 +434,24 @@ void SUB_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
   machine->REGISTERS[Vx] -= machine->REGISTERS[Vy];
 }
 
+void SUBN_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+{
+  // 8xy7 - SUBN Vx, Vy
+  // Set Vx = Vy - Vx, set VF = NOT borrow.
+
+  // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy,
+  // and the results stored in Vx.
+
+  if(machine->REGISTERS[Vy] > machine->REGISTERS[Vx])
+  {
+    machine->REGISTERS[0xF] = 0x01;
+  }else{
+    machine->REGISTERS[0xF] = 0x00;
+  }
+
+  machine->REGISTERS[Vx] = machine->REGISTERS[Vy] - machine->REGISTERS[Vx];
+}
+
 void SHR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy){
   // This honors the original CHIP-8 spec.
   // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
@@ -503,6 +522,9 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
     case 0x6:
       SHR_Vx_Vy(machine, Vx, Vy);
       break;
+    case 0x7:
+      SUBN_Vx_Vy(machine, Vx, Vy);
+      break;
     case 0xe:
       SHL_Vx_Vy(machine, Vx, Vy);
       break;
@@ -545,3 +567,40 @@ void decode(Machine_t* machine, Instruction_t* instruction)
   }
 
 }
+
+// INSTRUCTIONS:
+// x --- 00E0 - CLS
+// x --- 00EE - RET
+// O --- 0nnn - SYS addr
+// x --- 1nnn - JP addr
+// x --- 2nnn - CALL addr
+// O --- 3xkk - SE Vx, byte
+// O --- 4xkk - SNE Vx, byte
+// O --- 5xy0 - SE Vx, Vy
+// x --- 6xkk - LD Vx, byte
+// x --- 7xkk - ADD Vx, byte
+// x --- 8xy0 - LD Vx, Vy
+// x --- 8xy1 - OR Vx, Vy
+// x --- 8xy2 - AND Vx, Vy
+// x --- 8xy3 - XOR Vx, Vy
+// x --- 8xy4 - ADD Vx, Vy
+// x --- 8xy5 - SUB Vx, Vy
+// x --- 8xy6 - SHR Vx {, Vy}
+// O --- 8xy7 - SUBN Vx, Vy
+// O --- 8xyE - SHL Vx {, Vy}
+// O --- 9xy0 - SNE Vx, Vy
+// O --- Annn - LD I, addr
+// O --- Bnnn - JP V0, addr
+// O --- Cxkk - RND Vx, byte
+// O --- Dxyn - DRW Vx, Vy, nibble
+// O --- Ex9E - SKP Vx
+// O --- ExA1 - SKNP Vx
+// O --- Fx07 - LD Vx, DT
+// O --- Fx0A - LD Vx, K
+// O --- Fx15 - LD DT, Vx
+// O --- Fx18 - LD ST, Vx
+// O --- Fx1E - ADD I, Vx
+// O --- Fx29 - LD F, Vx
+// O --- Fx33 - LD B, Vx
+// O --- Fx55 - LD [I], Vx
+// O --- Fx65 - LD Vx, [I]
