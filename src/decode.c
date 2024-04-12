@@ -559,6 +559,20 @@ void SE_Vx(Machine_t* machine, Instruction_t* instruction)
   }
 }
 
+void SNE_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // 4xkk - SNE Vx, byte
+  // Skip next instruction if Vx != kk.
+
+  // The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
+
+  uint8_t Vx = (*instruction)[0] & 0x0F;
+  if(machine->REGISTERS[Vx] != (*instruction)[1])
+  {
+    machine->PC += 2;
+  }
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -580,6 +594,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x3:
       SE_Vx(machine, instruction);
+      break;
+    case 0x4:
+      SNE_Vx(machine, instruction);
       break;
     case 0x6:
       LD_Vx(machine, instruction);

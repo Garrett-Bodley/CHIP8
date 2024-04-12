@@ -62,3 +62,29 @@ Test(Assorted, SE_Vx)
   cr_expect(machine.PC == 0x00, "Expected PC to be 0x00, found %02x", machine.PC);
 }
 
+Test(Assorted, SNE_Vx)
+{
+  // 4xkk - SNE Vx, byte
+  // Skip next instruction if Vx != kk.
+
+  // The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
+
+  instruction[0] = 0x40;
+  instruction[1] = 0xFF;
+  machine.PC = 0x00;
+  machine.REGISTERS[0x0] = 0x42;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x02, "Expected PC to be set to 0x02, found 0x%02x", machine.PC);
+
+  instruction[0] = 0x41;
+  instruction[1] = 0xFF;
+  machine.PC = 0x00;
+  machine.REGISTERS[0x1] = 0xFF;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x00, found 0x%02x", machine.PC);
+}
+
