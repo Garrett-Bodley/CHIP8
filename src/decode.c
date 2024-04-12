@@ -119,6 +119,16 @@ void RET(Machine_t* machine)
   machine->SP -= 1;
 }
 
+void SYS(Machine_t* machine)
+{
+  // 0nnn - SYS addr
+  // Jump to a machine code routine at nnn.
+
+  // This instruction is only used on the old computers on which Chip-8 was originally implemented. It is ignored by modern interpreters.
+
+  // noop
+}
+
 void decode_0x0(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -131,6 +141,10 @@ void decode_0x0(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0xEE:
       RET(machine);
+      break;
+    default:
+      SYS(machine);
+      break;
   }
 }
 
