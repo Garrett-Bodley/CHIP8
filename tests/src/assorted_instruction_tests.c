@@ -14,7 +14,7 @@ void setup(void)
   sys_init(&machine);
 }
 
-Test(Assorted_Instruction, CALL)
+Test(Assorted, CALL)
 {
   instruction[0] = 0x23;
   instruction[1] = 0x33;
@@ -86,5 +86,31 @@ Test(Assorted, SNE_Vx)
   decode(&machine, &instruction);
 
   cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x00, found 0x%02x", machine.PC);
+}
+
+Test(Assorted, SE_Vx_Vy)
+{
+  // 5xy0 - SE Vx, Vy
+  // Skip next instruction if Vx = Vy.
+
+  // The interpreter compares register Vx to register Vy, and if they are equal, increments the program counter by 2.
+
+  instruction[0] = 0x50;
+  instruction[1] = 0x10;
+  machine.PC = 0x00;
+  machine.REGISTERS[0x0] = 0x42;
+  machine.REGISTERS[0x1] = 0x42;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x02, "Expected PC to be set to 0x02, got 0x%02x", machine.PC);
+
+  instruction[0] = 0x5A;
+  instruction[1] = 0xB0;
+  machine.PC = 0x00;
+  machine.REGISTERS[0xA] = 0x42;
+  machine.REGISTERS[0xB] = 0x41;
+
+  cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x02, got 0x%02x", machine.PC);
 }
 
