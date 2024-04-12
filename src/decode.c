@@ -670,6 +670,17 @@ void ADD_I_Vx(Machine_t* machine, Instruction_t* instruction)
   machine->I += machine->REGISTERS[Vx];
 }
 
+void LD_F_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx29 - LD F, Vx
+  // Set I = location of sprite for digit Vx.
+
+  // The value of I is set to the location for the hexadecimal sprite corresponding to the value of Vx.
+
+  uint8_t Vx = (*instruction)[0] & 0x0F;
+  machine->I = FONT_BASE + (machine->REGISTERS[Vx] & 0x0F);
+}
+
 void decode_0xF(Machine_t* machine, Instruction_t* instruction)
 {
   switch((*instruction)[1])
@@ -685,6 +696,9 @@ void decode_0xF(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x1E:
       ADD_I_Vx(machine, instruction);
+      break;
+    case 0x29:
+      LD_F_Vx(machine, instruction);
       break;
   }
 }

@@ -254,3 +254,20 @@ Test(Assorted, ADD_I_Vx)
 
   cr_expect(machine.I == 0x133, "Expected I to be set to 0x133, found 0x%03x", machine.I);
 }
+
+Test(Assorted, LD_F_Vx)
+{
+  // Fx29 - LD F, Vx
+  // Set I = location of sprite for digit Vx.
+
+  // The value of I is set to the location for the hexadecimal sprite corresponding to the value of Vx.
+
+  instruction[0] = 0xF0;
+  instruction[1] = 0x29;
+  machine.REGISTERS[0x0] = 0x00;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.I == FONT_BASE, "Expected I to be set to 0x%02x, found 0x%02x", FONT_BASE, machine.I);
+
+}
