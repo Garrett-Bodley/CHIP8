@@ -545,6 +545,20 @@ void decode_ALU(Machine_t* machine, Instruction_t* instruction)
   }
 }
 
+void SE_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // 3xkk - SE Vx, byte
+  // Skip next instruction if Vx = kk.
+
+  // The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
+
+  uint8_t Vx = (*instruction)[0] & 0x0F;
+  if(machine->REGISTERS[Vx] == (*instruction)[1])
+  {
+    machine->PC += 2;
+  }
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -563,6 +577,10 @@ void decode(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x2:
       CALL(machine, instruction);
+      break;
+    case 0x3:
+      SE_Vx(machine, instruction);
+      break;
     case 0x6:
       LD_Vx(machine, instruction);
       break;
@@ -585,7 +603,7 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 // INSTRUCTIONS:
 // X --- 00E0 - CLS
 // X --- 00EE - RET
-// O --- 0nnn - SYS addr
+// X --- 0nnn - SYS addr
 // X --- 1nnn - JP addr
 // X --- 2nnn - CALL addr
 // O --- 3xkk - SE Vx, byte

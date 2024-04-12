@@ -30,3 +30,35 @@ Test(Assorted_Instruction, CALL)
   cr_expect(machine.PC == 0x333, "Expected PC to be set to new value 0x333, got 0x%03x", machine.PC);
 }
 
+Test(Assorted, SE_Vx)
+{
+  // 3xkk - SE Vx, byte
+  // Skip next instruction if Vx = kk.
+
+  // The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
+
+  instruction[0] = 0x30;
+  instruction[1] = 0xFF;
+  machine.REGISTERS[0x0] = 0xFF;
+  machine.PC = 0x00;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x02, "Expected PC to be 0x02, found %02x", machine.PC);
+
+  instruction[0] = 0x3A;
+  instruction[1] = 0x42;
+  machine.REGISTERS[0xA] = 0x42;
+  machine.PC = 0x04;
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x06, "Expected PC to be 0x06, found %02x", machine.PC);
+
+  instruction[0] = 0x3B;
+  instruction[1] = 0x42;
+  machine.REGISTERS[0xB] = 0x00;
+  machine.PC = 0x00;
+
+  cr_expect(machine.PC == 0x00, "Expected PC to be 0x00, found %02x", machine.PC);
+}
+
