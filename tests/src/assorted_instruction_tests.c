@@ -269,5 +269,48 @@ Test(Assorted, LD_F_Vx)
   decode(&machine, &instruction);
 
   cr_expect(machine.I == FONT_BASE, "Expected I to be set to 0x%02x, found 0x%02x", FONT_BASE, machine.I);
+}
+
+Test(Assorted, LD_B_Vx)
+{
+  // Fx33 - LD B, Vx
+  // Store BCD representation of Vx in memory locations I, I+1, and I+2.
+
+  // The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I,
+  // the tens digit at location I+1, and the ones digit at location I+2.
+
+  instruction[0] = 0xF0;
+  instruction[1] = 0x33;
+  machine.REGISTERS[0x0] = 0x01;
+  machine.I = 0xFF0;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.MEMORY[0xFF0] == 0x00, "Expected Address 0xFF0 to contain value 0x00, found 0x%02x", machine.MEMORY[0xFF0]);
+  cr_expect(machine.MEMORY[0xFF1] == 0x00, "Expected Address 0xFF1 to contain value 0x00, found 0x%02x", machine.MEMORY[0xFF1]);
+  cr_expect(machine.MEMORY[0xFF2] == 0x01, "Expected Address 0xFF2 to contain value 0x01, found 0x%02x", machine.MEMORY[0xFF2]);
+
+  instruction[0] = 0xF0;
+  instruction[1] = 0x33;
+  machine.REGISTERS[0x0] = 0x0F;
+  machine.I = 0xFF0;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.MEMORY[0xFF0] == 0x00, "Expected Address 0xFF0 to contain value 0x00, found 0x%02x", machine.MEMORY[0xFF0]);
+  cr_expect(machine.MEMORY[0xFF1] == 0x01, "Expected Address 0xFF1 to contain value 0x01, found 0x%02x", machine.MEMORY[0xFF1]);
+  cr_expect(machine.MEMORY[0xFF2] == 0x05, "Expected Address 0xFF2 to contain value 0x05, found 0x%02x", machine.MEMORY[0xFF2]);
+
+  instruction[0] = 0xF0;
+  instruction[1] = 0x33;
+  machine.REGISTERS[0x0] = 0xFF;
+  machine.I = 0xFF0;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.MEMORY[0xFF0] == 0x02, "Expected Address 0xFF0 to contain value 0x02, found 0x%02x", machine.MEMORY[0xFF0]);
+  cr_expect(machine.MEMORY[0xFF1] == 0x05, "Expected Address 0xFF1 to contain value 0x05, found 0x%02x", machine.MEMORY[0xFF1]);
+  cr_expect(machine.MEMORY[0xFF2] == 0x05, "Expected Address 0xFF2 to contain value 0x05, found 0x%02x", machine.MEMORY[0xFF2]);
 
 }
+

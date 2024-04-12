@@ -681,6 +681,26 @@ void LD_F_Vx(Machine_t* machine, Instruction_t* instruction)
   machine->I = FONT_BASE + (machine->REGISTERS[Vx] & 0x0F);
 }
 
+void LD_B_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx33 - LD B, Vx
+  // Store BCD representation of Vx in memory locations I, I+1, and I+2.
+
+  // The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I,
+  // the tens digit at location I+1, and the ones digit at location I+2.
+
+  uint8_t Vx = (*instruction)[0] & 0x0F;
+  uint8_t val = machine->REGISTERS[Vx];
+
+  uint8_t ones = val % 10;
+  uint8_t tens = ((val % 100) - ones) / 10;
+  uint8_t hundreds = (val - (tens + ones)) / 100;
+
+  machine->MEMORY[machine->I] = hundreds;
+  machine->MEMORY[machine->I + 1] = tens;
+  machine->MEMORY[machine->I + 2] = ones;
+}
+
 void decode_0xF(Machine_t* machine, Instruction_t* instruction)
 {
   switch((*instruction)[1])
@@ -699,6 +719,9 @@ void decode_0xF(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x29:
       LD_F_Vx(machine, instruction);
+      break;
+    case 0x33:
+      LD_B_Vx(machine, instruction);
       break;
   }
 }
@@ -795,9 +818,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 // X --- Fx07 - LD Vx, DT
 // O --- Fx0A - LD Vx, K
 // X --- Fx15 - LD DT, Vx
-// O --- Fx18 - LD ST, Vx
-// O --- Fx1E - ADD I, Vx
-// O --- Fx29 - LD F, Vx
+// X --- Fx18 - LD ST, Vx
+// X --- Fx1E - ADD I, Vx
+// X --- Fx29 - LD F, Vx
 // O --- Fx33 - LD B, Vx
 // O --- Fx55 - LD [I], Vx
 // O --- Fx65 - LD Vx, [I]
