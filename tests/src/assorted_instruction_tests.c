@@ -337,7 +337,28 @@ Test(Assorted, LD_I_Vx)
   {
     cr_expect(machine.MEMORY[machine.I + i] == i, "Expected MEMORY[0x%03x] to have value 0x%x, found 0x%02x", machine.I + i, i, machine.MEMORY[machine.I + i]);
   }
+}
 
+Test(Assorted, LD_Vx_I)
+{
+  // Fx65 - LD Vx, [I]
+  // Read registers V0 through Vx from memory starting at location I.
 
+  // The interpreter reads values from memory starting at location I into registers V0 through Vx.
+
+  instruction[0] = 0xFF;
+  instruction[1] = 0x65;
+  machine.I = 0xFF0;
+  for(int i = 0; i <= 0xF; i++)
+  {
+    machine.MEMORY[machine.I + i] = i;
+  }
+
+  decode(&machine, &instruction);
+
+  for(int i = 0; i <= 0xF; i++)
+  {
+    cr_expect(machine.REGISTERS[i] == i, "Expected REGISTERS[0x%x] to have value 0x%x, found 0x%x", i, i, machine.REGISTERS[i]);
+  }
 }
 
