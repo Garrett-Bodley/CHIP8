@@ -569,30 +569,30 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 }
 
 // INSTRUCTIONS:
-// x --- 00E0 - CLS
-// x --- 00EE - RET
+// X --- 00E0 - CLS
+// X --- 00EE - RET
 // O --- 0nnn - SYS addr
-// x --- 1nnn - JP addr
-// x --- 2nnn - CALL addr
+// X --- 1nnn - JP addr
+// X --- 2nnn - CALL addr
 // O --- 3xkk - SE Vx, byte
 // O --- 4xkk - SNE Vx, byte
 // O --- 5xy0 - SE Vx, Vy
-// x --- 6xkk - LD Vx, byte
-// x --- 7xkk - ADD Vx, byte
-// x --- 8xy0 - LD Vx, Vy
-// x --- 8xy1 - OR Vx, Vy
-// x --- 8xy2 - AND Vx, Vy
-// x --- 8xy3 - XOR Vx, Vy
-// x --- 8xy4 - ADD Vx, Vy
-// x --- 8xy5 - SUB Vx, Vy
-// x --- 8xy6 - SHR Vx {, Vy}
-// O --- 8xy7 - SUBN Vx, Vy
-// O --- 8xyE - SHL Vx {, Vy}
+// X --- 6xkk - LD Vx, byte
+// X --- 7xkk - ADD Vx, byte
+// X --- 8xy0 - LD Vx, Vy
+// X --- 8xy1 - OR Vx, Vy
+// X --- 8xy2 - AND Vx, Vy
+// X --- 8xy3 - XOR Vx, Vy
+// X --- 8xy4 - ADD Vx, Vy
+// X --- 8xy5 - SUB Vx, Vy
+// X --- 8xy6 - SHR Vx {, Vy}
+// X --- 8xy7 - SUBN Vx, Vy
+// X --- 8xyE - SHL Vx {, Vy}
 // O --- 9xy0 - SNE Vx, Vy
 // O --- Annn - LD I, addr
 // O --- Bnnn - JP V0, addr
 // O --- Cxkk - RND Vx, byte
-// O --- Dxyn - DRW Vx, Vy, nibble
+// X --- Dxyn - DRW Vx, Vy, nibble
 // O --- Ex9E - SKP Vx
 // O --- ExA1 - SKNP Vx
 // O --- Fx07 - LD Vx, DT
