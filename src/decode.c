@@ -627,6 +627,26 @@ void RND_Vx(Machine_t* machine, Instruction_t* instruction)
   machine->REGISTERS[Vx] = random & (*instruction)[1];
 }
 
+void LD_Vx_DT(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx07 - LD Vx, DT
+  // Set Vx = delay timer value.
+
+  // The value of DT is placed into Vx.
+  uint8_t Vx = (*instruction)[0] & 0x0F;
+  machine->REGISTERS[Vx] = machine->DELAY_TIMER;
+}
+
+void decode_0xF(Machine_t* machine, Instruction_t* instruction)
+{
+  switch((*instruction)[1])
+  {
+    case 0x07:
+      LD_Vx_DT(machine, instruction);
+      break;
+  }
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -679,6 +699,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
     case 0xD:
       DRW_VX_VY(machine, instruction);
       break;
+    case 0xF:
+      decode_0xF(machine, instruction);
+      break;
   }
 
 }
@@ -705,11 +728,14 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 // X --- 8xyE - SHL Vx {, Vy}
 // X --- 9xy0 - SNE Vx, Vy
 // X --- Annn - LD I, addr
-// O --- Bnnn - JP V0, addr
-// O --- Cxkk - RND Vx, byte
+// X --- Bnnn - JP V0, addr
+// X --- Cxkk - RND Vx, byte
 // X --- Dxyn - DRW Vx, Vy, nibble
+//
+// TODO:
 // O --- Ex9E - SKP Vx
 // O --- ExA1 - SKNP Vx
+//
 // O --- Fx07 - LD Vx, DT
 // O --- Fx0A - LD Vx, K
 // O --- Fx15 - LD DT, Vx
