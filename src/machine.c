@@ -76,10 +76,9 @@ void load_font(Machine_t* machine)
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
   };
 
-  uint8_t base_addr = 0x50;
   for(i = 0; i < 80; i++)
   {
-    machine->MEMORY[base_addr + i] = FONT[i];
+    machine->MEMORY[FONT_BASE + i] = FONT[i];
   }
 }
 

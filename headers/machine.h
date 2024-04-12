@@ -12,6 +12,7 @@
 #define STACK_SIZE 16
 #define REGISTER_COUNT 16
 #define SCREEN_REGISTER_COUNT 256 // 64 * 32 / 8
+#define FONT_BASE 0x50
 
 struct Machine_s {
   volatile uint8_t SP;
