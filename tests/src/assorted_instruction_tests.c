@@ -203,3 +203,21 @@ Test(Assorted, LD_Vx_DT)
 
   cr_expect(machine.REGISTERS[0x0] == 0x42, "Expected register V0 to contain the value 0x42, found 0x%02x", machine.REGISTERS[0x0]);
 }
+
+Test(Assorted, LD_DT_Vx)
+{
+  // Fx15 - LD DT, Vx
+  // Set delay timer = Vx.
+
+  // DT is set equal to the value of Vx.
+
+  instruction[0] = 0xF0;
+  instruction[1] = 0x15;
+  machine.REGISTERS[0x0] = 0xFF;
+  machine.DELAY_TIMER = 0x00;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.DELAY_TIMER == 0xFF, "Expected DELAY_TIMER to be set to 0xFF, found 0x%02x", machine.DELAY_TIMER);
+}
+

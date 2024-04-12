@@ -637,12 +637,26 @@ void LD_Vx_DT(Machine_t* machine, Instruction_t* instruction)
   machine->REGISTERS[Vx] = machine->DELAY_TIMER;
 }
 
+void LD_DT_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx15 - LD DT, Vx
+  // Set delay timer = Vx.
+
+  // DT is set equal to the value of Vx.
+
+  uint8_t Vx = (*instruction)[0] & 0xF;
+  machine->DELAY_TIMER = machine->REGISTERS[Vx];
+}
+
 void decode_0xF(Machine_t* machine, Instruction_t* instruction)
 {
   switch((*instruction)[1])
   {
     case 0x07:
       LD_Vx_DT(machine, instruction);
+      break;
+    case 0x15:
+      LD_DT_Vx(machine, instruction);
       break;
   }
 }
