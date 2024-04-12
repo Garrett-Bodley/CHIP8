@@ -648,6 +648,17 @@ void LD_DT_Vx(Machine_t* machine, Instruction_t* instruction)
   machine->DELAY_TIMER = machine->REGISTERS[Vx];
 }
 
+void LD_ST_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx18 - LD ST, Vx
+  // Set sound timer = Vx.
+
+  // ST is set equal to the value of Vx.
+
+  uint8_t Vx = (*instruction)[0] & 0xF;
+  machine->SOUND_TIMER = machine->REGISTERS[Vx];
+}
+
 void decode_0xF(Machine_t* machine, Instruction_t* instruction)
 {
   switch((*instruction)[1])
@@ -657,6 +668,9 @@ void decode_0xF(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x15:
       LD_DT_Vx(machine, instruction);
+      break;
+    case 0x18:
+      LD_ST_Vx(machine, instruction);
       break;
   }
 }
@@ -750,9 +764,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 // O --- Ex9E - SKP Vx
 // O --- ExA1 - SKNP Vx
 //
-// O --- Fx07 - LD Vx, DT
+// X --- Fx07 - LD Vx, DT
 // O --- Fx0A - LD Vx, K
-// O --- Fx15 - LD DT, Vx
+// X --- Fx15 - LD DT, Vx
 // O --- Fx18 - LD ST, Vx
 // O --- Fx1E - ADD I, Vx
 // O --- Fx29 - LD F, Vx

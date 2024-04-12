@@ -221,3 +221,20 @@ Test(Assorted, LD_DT_Vx)
   cr_expect(machine.DELAY_TIMER == 0xFF, "Expected DELAY_TIMER to be set to 0xFF, found 0x%02x", machine.DELAY_TIMER);
 }
 
+Test(Assorted, LD_ST_Vx)
+{
+  // Fx18 - LD ST, Vx
+  // Set sound timer = Vx.
+
+  // ST is set equal to the value of Vx.
+
+  instruction[0] = 0xF0;
+  instruction[1] = 0x18;
+  machine.REGISTERS[0x0] = 0xFF;
+  machine.SOUND_TIMER = 0x00;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.SOUND_TIMER == 0xFF, "Expected SOUND_TIMER to be set to 0xFF, found 0x%02x", machine.SOUND_TIMER);
+}
+
