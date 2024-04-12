@@ -169,3 +169,21 @@ Test(Assorted, JP_V0)
 
 }
 
+Test(Assorted, RND_Vx)
+{
+  // Cxkk - RND Vx, byte
+  // Set Vx = random byte AND kk.
+
+  // The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk.
+  // The results are stored in Vx. See instruction 8xy2 for more information on AND.
+
+  // I can only sort of kind of test this one
+
+  instruction[0] = 0xC0;
+  instruction[1] = 0x34;
+
+  decode(&machine, &instruction);
+
+  cr_expect((machine.REGISTERS[0x0] & 0x34) <= 0x34, "Expected register V0 to contain a value <= 0x34, found 0x%02x", machine.REGISTERS[0x0]);
+
+}

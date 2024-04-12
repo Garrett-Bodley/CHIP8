@@ -1,6 +1,7 @@
 #include "../headers/instruction.h"
 #include "../headers/machine.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -614,6 +615,18 @@ void JP_V0(Machine_t* machine, Instruction_t* instruction)
   machine->PC = machine->REGISTERS[0x0] + nnn;
 }
 
+void RND_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Cxkk - RND Vx, byte
+  // Set Vx = random byte AND kk.
+
+  // The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk.
+  // The results are stored in Vx. See instruction 8xy2 for more information on AND.
+  uint8_t random = rand();
+  uint8_t Vx = (*instruction)[0] & 0xF;
+  machine->REGISTERS[Vx] = random & (*instruction)[1];
+}
+
 void decode(Machine_t* machine, Instruction_t* instruction)
 {
   #ifdef DEBUG
@@ -659,6 +672,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0xB:
       JP_V0(machine, instruction);
+      break;
+    case 0xC:
+      RND_Vx(machine, instruction);
       break;
     case 0xD:
       DRW_VX_VY(machine, instruction);
