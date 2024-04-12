@@ -114,3 +114,31 @@ Test(Assorted, SE_Vx_Vy)
   cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x02, got 0x%02x", machine.PC);
 }
 
+Test(Assorted, SNE_Vx_Vy)
+{
+  // 9xy0 - SNE Vx, Vy
+  // Skip next instruction if Vx != Vy.
+
+  // The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
+
+  instruction[0] = 0x90;
+  instruction[1] = 0x10;
+  machine.PC = 0x00;
+  machine.REGISTERS[0x0] = 0x42;
+  machine.REGISTERS[0x1] = 0x41;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x02, "Expected PC to be set to 0x02, found 0x%02x", machine.PC);
+
+  instruction[0] = 0x9A;
+  instruction[1] = 0xB0;
+  machine.PC = 0x00;
+  machine.REGISTERS[0xA] = 0x42;
+  machine.REGISTERS[0xB] = 0x42;
+
+  decode(&machine, &instruction);
+
+  cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x00, found 0x%02x", machine.PC);
+}
+
