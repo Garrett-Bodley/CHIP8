@@ -701,6 +701,21 @@ void LD_B_Vx(Machine_t* machine, Instruction_t* instruction)
   machine->MEMORY[machine->I + 2] = ones;
 }
 
+void LD_I_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx55 - LD [I], Vx
+  // Store registers V0 through Vx in memory starting at location I.
+
+  // The interpreter copies the values of registers V0 through Vx into memory,
+  // starting at the address in I.
+  uint8_t i = 0;
+  uint8_t Vx = (*instruction)[0] & 0x0F;
+  for(; i <= Vx; ++i)
+  {
+    machine->MEMORY[machine->I + i] = machine->REGISTERS[i];
+  }
+}
+
 void decode_0xF(Machine_t* machine, Instruction_t* instruction)
 {
   switch((*instruction)[1])
@@ -722,6 +737,9 @@ void decode_0xF(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x33:
       LD_B_Vx(machine, instruction);
+      break;
+    case 0x55:
+      LD_I_Vx(machine, instruction);
       break;
   }
 }
@@ -821,6 +839,6 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 // X --- Fx18 - LD ST, Vx
 // X --- Fx1E - ADD I, Vx
 // X --- Fx29 - LD F, Vx
-// O --- Fx33 - LD B, Vx
+// X --- Fx33 - LD B, Vx
 // O --- Fx55 - LD [I], Vx
 // O --- Fx65 - LD Vx, [I]

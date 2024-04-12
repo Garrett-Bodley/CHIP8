@@ -314,3 +314,30 @@ Test(Assorted, LD_B_Vx)
 
 }
 
+Test(Assorted, LD_I_Vx)
+{
+  // Fx55 - LD [I], Vx
+  // Store registers V0 through Vx in memory starting at location I.
+
+  // The interpreter copies the values of registers V0 through Vx into memory,
+  // starting at the address in I.
+
+  instruction[0] = 0xFF;
+  instruction[1] = 0x55;
+  machine.I = 0xFF0;
+
+  for(int i = 0; i <= 0xF; i++)
+  {
+    machine.REGISTERS[i] = i;
+  }
+
+  decode(&machine, &instruction);
+
+  for(int i = 0; i <= 0xF; i++)
+  {
+    cr_expect(machine.MEMORY[machine.I + i] == i, "Expected MEMORY[0x%03x] to have value 0x%x, found 0x%02x", machine.I + i, i, machine.MEMORY[machine.I + i]);
+  }
+
+
+}
+
