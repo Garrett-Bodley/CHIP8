@@ -29,14 +29,14 @@ void load_file(char* path, Machine_t* machine)
 
   fseek(file, 0, SEEK_END);
   file_size = ftell(file);
-  if(file_size > MEM_SIZE - 0x200)
+  if(file_size > MEM_SIZE - ROM_BASE)
   {
     perror("Provided file is too large");
     exit(2);
   }
 
   rewind(file);
-  uint8_t* start_position = machine->MEMORY + 0x200;
+  uint8_t* start_position = machine->MEMORY + ROM_BASE;
 
   size_t bytes_read = fread(start_position, sizeof(uint8_t), file_size, file);
   if(bytes_read != file_size)
@@ -49,7 +49,7 @@ void load_file(char* path, Machine_t* machine)
   fclose(file);
   #elif defined(APPLE2)
     // rom and rom_size are extern values found in apple_rom.c
-    uint8_t* start_position = machine->MEMORY + 0x200;
+    uint8_t* start_position = machine->MEMORY + ROM_BASE;
     memcpy(start_position, &rom, rom_size);
   #endif
 }

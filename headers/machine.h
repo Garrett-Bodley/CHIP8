@@ -13,6 +13,7 @@
 #define REGISTER_COUNT 16
 #define SCREEN_REGISTER_COUNT 256 // 64 * 32 / 8
 #define FONT_BASE 0x50
+#define ROM_BASE 0x200
 
 struct Machine_s {
   volatile uint8_t SP;
