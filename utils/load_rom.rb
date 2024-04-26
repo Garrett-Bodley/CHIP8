@@ -1,9 +1,17 @@
 require 'pry-nav'
 require 'pathname'
 
-file_path = Pathname.new(File.expand_path('src/apple_rom.c'))
+if ARGV.empty?
+  raise ArgumentError, 'usage: ruby load_rom.rb <pathname>'
+end
 
-rom = Pathname.new(File.expand_path('ROMs/IBM.ch8'))
+rom = Pathname.new(File.expand_path(ARGV.shift))
+
+raise ArgumentError, "error: invalid path provided '#{rom}`" unless rom.exist?
+raise ArgumentError, "error: not a file '#{rom}`" unless rom.file?
+raise ArgumentError, "error: file is not of type .ch8 '#{rom}`" unless rom.extname == '.ch8'
+
+file_path = Pathname.new(File.expand_path('src/apple_rom.c'))
 
 rom_file = File.open(rom, 'rb')
 
