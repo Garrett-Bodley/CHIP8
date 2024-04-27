@@ -7,6 +7,8 @@
 #define LAST_SCREEN_THIRD 0x450
 #define SCREEN_ROW_OFFSET 0x80
 
+#define SPEAKER_TOGGLE (volatile uint8_t*) 0xC030 // Read from this address to drive the speaker once
+
 void set_mixed(bool flag);
 void set_text(bool flag);
 void set_column_80(bool flag);

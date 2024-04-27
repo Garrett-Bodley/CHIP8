@@ -59,6 +59,9 @@ void log_font(Machine_t* machine)
 
 void chip8(char* path)
 {
+  volatile uint8_t dummy_val;
+  uint8_t i = 0;
+
   sys_init(&machine);
   load_file(path, &machine);
 
@@ -90,8 +93,15 @@ void chip8(char* path)
 
     while(true)
     {
+      if(machine.SOUND_TIMER > 0) dummy_val = *SPEAKER_TOGGLE;
+      if(i % 8 == 0){
+        if(machine.SOUND_TIMER > 0) --machine.SOUND_TIMER;
+        if(machine.DELAY_TIMER > 0) --machine.DELAY_TIMER;
+        i = 0;
+      }
       fetch(&machine, &instruction);
       decode(&machine, &instruction);
+      ++i;
     }
   #endif
 }
