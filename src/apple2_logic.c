@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "../headers/apple2_logic.h"
 
 #define MIXED_ON (uint8_t *)0xC053
 #define MIXED_OFF (uint8_t *)0xC052
@@ -567,4 +568,108 @@ void draw_sprite_words_lg80(uint8_t x, uint8_t y, uint8_t* sprite, uint8_t n)
     x -= 8;
     ++y;
   }
+}
+
+
+char char_to_hex(char ch)
+{
+  switch(ch)
+  {
+    case '1':
+      ch = 0x1;
+      break;
+    case '2':
+      ch = 0x2;
+      break;
+    case '3':
+      ch = 0x3;
+      break;
+    case '4':
+      ch = 0xC;
+      break;
+    case 'q':
+      ch = 0x4;
+      break;
+    case 'Q':
+      ch = 0x4;
+      break;
+    case 'w':
+      ch = 0x5;
+      break;
+    case 'W':
+      ch = 0x5;
+      break;
+    case 'e':
+      ch = 0x6;
+      break;
+    case 'E':
+      ch = 0x6;
+      break;
+    case 'r':
+      ch = 0xD;
+      break;
+    case 'R':
+      ch = 0xD;
+      break;
+    case 'a':
+      ch = 0x7;
+      break;
+    case 'A':
+      ch = 0x7;
+      break;
+    case 's':
+      ch = 0x8;
+      break;
+    case 'S':
+      ch = 0x8;
+      break;
+    case 'd':
+      ch = 0x9;
+      break;
+    case 'D':
+      ch = 0x9;
+      break;
+    case 'f':
+      ch = 0xE;
+      break;
+    case 'F':
+      ch = 0xE;
+      break;
+    case 'z':
+      ch = 0xA;
+      break;
+    case 'Z':
+      ch = 0xA;
+      break;
+    case 'x':
+      ch = 0x0;
+      break;
+    case 'X':
+      ch = 0x0;
+      break;
+    case 'c':
+      ch = 0xB;
+      break;
+    case 'C':
+      ch = 0xB;
+      break;
+    case 'v':
+      ch = 0xF;
+      break;
+    case 'V':
+      ch = 0xF;
+      break;
+  }
+  return ch;
+}
+
+char read_char(void)
+{
+  char ch;
+  if((128 & *KEY_DATA) > 0){
+    ch = *KEY_DATA & 127;
+    *CLEAR_KEY_STROBE = -1;
+    return char_to_hex(ch);
+  }
+  return -1;
 }

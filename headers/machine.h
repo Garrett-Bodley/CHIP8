@@ -28,6 +28,8 @@ struct Machine_s {
 
   #ifdef SDL
   SDL_Surface* SCREEN;
+  #elif defined(APPLE2)
+  char KEY;
   #endif
 };
 

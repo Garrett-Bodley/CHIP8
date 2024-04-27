@@ -724,12 +724,63 @@ void LD_Vx_I(Machine_t* machine, Instruction_t* instruction)
   // The interpreter reads values from memory starting at location I into registers V0 through Vx.
 
   uint8_t i = 0;
-  uint8_t Vx = (*instruction)[0] & 0xF;
+  // uint8_t Vx = (*instruction)[0] & 0xF;
+  uint8_t Vx = **instruction & 0xF;
 
   for(; i <= Vx; ++i)
   {
     machine->REGISTERS[i] = machine->MEMORY[machine->I + i];
   }
+}
+
+void LD_Vx_K(Machine_t* machine, Instruction_t* instruction)
+{
+  // Fx0A - LD Vx, K
+  // Wait for a key press, store the value of the key in Vx.
+
+  // All execution stops until a key is pressed, then the value of that key is stored in Vx.
+  char ch;
+  bool quit = false;
+  uint8_t Vx = (*instruction)[0] & 0xF;
+  #ifdef APPLE2
+  while((128 & *KEY_DATA) == 0){
+    ch = *KEY_DATA & 127;
+  }
+  *CLEAR_KEY_STROBE = -1;
+  machine->REGISTERS[Vx] = char_to_hex(ch);
+  #endif
+}
+
+void SKP_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // Ex9E - SKP Vx
+  // Skip next instruction if key with the value of Vx is pressed.
+
+  // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position, PC is increased by 2.
+
+  uint8_t Vx = (*instruction)[0] & 0xF;
+  #ifdef APPLE2
+  machine->KEY = read_char();
+  if(machine->KEY == machine->REGISTERS[Vx]){
+    machine->PC += 2;
+  }
+  #endif
+}
+
+void SKNP_Vx(Machine_t* machine, Instruction_t* instruction)
+{
+  // ExA1 - SKNP Vx
+  // Skip next instruction if key with the value of Vx is not pressed.
+
+  // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, PC is increased by 2.
+
+  uint8_t Vx = (*instruction)[0] & 0xF;
+  #ifdef APPLE2
+  machine->KEY = read_char();
+  if(machine->KEY != machine->REGISTERS[Vx]){
+    machine->PC += 2;
+  }
+  #endif`
 }
 
 void decode_0xF(Machine_t* machine, Instruction_t* instruction)
@@ -759,6 +810,21 @@ void decode_0xF(Machine_t* machine, Instruction_t* instruction)
       break;
     case 0x65:
       LD_Vx_I(machine, instruction);
+      break;
+    case 0x0A:
+      LD_Vx_K(machine, instruction);
+  }
+}
+
+void decode_0xE(Machine_t* machine, Instruction_t* instruction)
+{
+  switch((*instruction)[1])
+  {
+    case 0x9E:
+      SKP_Vx(machine, instruction);
+      break;
+    case 0xA1:
+      SKNP_Vx(machine, instruction);
       break;
   }
 }
@@ -818,6 +884,9 @@ void decode(Machine_t* machine, Instruction_t* instruction)
     case 0xF:
       decode_0xF(machine, instruction);
       break;
+    case 0xE:
+      decode_0xE(machine, instruction);
+      break;
   }
 
 }
@@ -849,11 +918,11 @@ void decode(Machine_t* machine, Instruction_t* instruction)
 // X --- Dxyn - DRW Vx, Vy, nibble
 //
 // TODO:
-// O --- Ex9E - SKP Vx
-// O --- ExA1 - SKNP Vx
+// V --- Ex9E - SKP Vx
+// V --- ExA1 - SKNP Vx
 //
 // X --- Fx07 - LD Vx, DT
-// O --- Fx0A - LD Vx, K
+// V --- Fx0A - LD Vx, K
 // X --- Fx15 - LD DT, Vx
 // X --- Fx18 - LD ST, Vx
 // X --- Fx1E - ADD I, Vx
