@@ -46,3 +46,11 @@ make wav
 # Generates a .dsk file for use with Virtual ][ or other //e emulators
 make disk
 ```
+
+## TODO:
+
+- [ ] Get keyboard input working on SDL build
+- [ ] Get audio audio output working on the SDL build
+- [ ] Rewrite //e implementation's draw screen routine in assembly (current C code is slower than desired)
+- [ ] Incorporate `load_rom.rb` into the Makefile build processes
+- [ ] Make `instruction` and `machine` extern values
