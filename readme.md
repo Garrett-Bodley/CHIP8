@@ -10,13 +10,13 @@ This is a cross-platform implementation, meaning that it can compile to both run
 
 ## Cross Compilation
 
-Compiling to the //e target is accomplished via the use of the CC65 tool chain, a cross development package for 6502 systems.
+Compiling to the //e target is accomplished via the use of the [CC65](https://cc65.github.io/) tool chain, a cross development package for 6502 systems.
 
 ## Apple //e
 
 The Apple //e is the third model in the Apple II series of personal computers produced by Apple Computer. It runs on a MOS-6502 processor, the mighty 8-bit processor that helped sparked the home computing revolution of the early 1980s.
 
-The //e's screen memory buffers are rather [peculiar](https://en.wikipedia.org/wiki/Apple_II_graphics#Peculiarity_of_graphics_modes). I make use of the lesser-documented *80-column Low Resolution Graphics* mode which is not without its difficulties. Even screen columns are on *Page 2* of screen memory, while odd columns are on *Page 1*. Switching between memory pages is accomplished by writing to the correct "soft switch".
+The //e's screen memory buffers are rather [peculiar](https://en.wikipedia.org/wiki/Apple_II_graphics#Peculiarity_of_graphics_modes). I make use of the lesser-documented **80-column Low Resolution Graphics** mode which is not without its difficulties. Even screen columns are on **Page 2** of screen memory, while odd columns are on **Page 1**. Switching between memory pages is accomplished by writing to the correct "soft switch".
 
 Meanwhile, even rows are written to the "low-nibble" (the 4 least significant bits) of the corresponding address and odd rows written to the "high-nibble". All of this means that the same memory address may correspond to one of four possible pixels. Special care must be taken to ensure the desired pixel is turned on.
 
