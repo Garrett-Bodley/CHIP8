@@ -16,7 +16,6 @@ Instruction_t instruction;
 #ifdef DEBUG
 #endif
 
-
 #ifdef SDL
 #include <SDL.h>
 #include "../headers/sdl_logic.h"
@@ -62,8 +61,8 @@ void chip8(char* path)
   volatile uint8_t dummy_val;
   uint8_t i = 0;
 
-  sys_init(&machine);
-  load_file(path, &machine);
+  sys_init();
+  load_file(path);
 
   #ifdef DEBUG
   log_memory(&machine);
@@ -80,16 +79,16 @@ void chip8(char* path)
   bool quit = false;
   while(!quit)
   {
-    fetch(&machine, &instruction);
+    fetch();
     #ifdef DEBUG
       printf("Instruction: %02x%02x\n", instruction[0], instruction[1]);
     #endif
-    decode(&machine, &instruction);
+    decode();
     quit = sdl_update(&interface);
   }
   #elif defined(APPLE2)
     set_double_low_res();
-    CLS(&machine);
+    CLS();
 
     while(true)
     {
@@ -99,8 +98,8 @@ void chip8(char* path)
         if(machine.DELAY_TIMER > 0) --machine.DELAY_TIMER;
         i = 0;
       }
-      fetch(&machine, &instruction);
-      decode(&machine, &instruction);
+      fetch();
+      decode();
       ++i;
     }
   #endif

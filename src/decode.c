@@ -12,7 +12,10 @@
 
 #endif
 
-void JP(Machine_t* machine, Instruction_t* instruction)
+extern Machine_t machine;
+extern Instruction_t instruction;
+
+void JP()
 {
   // 1nnn - JP addr
   // Jump to location nnn.
@@ -21,21 +24,21 @@ void JP(Machine_t* machine, Instruction_t* instruction)
   #ifdef DEBUG
   puts("JP");
   #endif
-  machine->PC = (*instruction)[0] & 0x0F;
-  machine->PC <<= 8;
-  machine->PC |= (*instruction)[1];
+  machine.PC = instruction[0] & 0x0F;
+  machine.PC <<= 8;
+  machine.PC |= instruction[1];
 }
 
-void LD_Vx(Machine_t* machine, Instruction_t* instruction)
+void LD_Vx()
 {
   // Set Vx = kk.
 
   // The interpreter puts the value kk into register Vx.
-  (*instruction)[0] &= 0x0F;
-  machine->REGISTERS[(*instruction)[0]] = (*instruction)[1];
+  instruction[0] &= 0x0F;
+  machine.REGISTERS[instruction[0]] = instruction[1];
 }
 
-void ADD_Vx(Machine_t* machine, Instruction_t* instruction)
+void ADD_Vx()
 {
   // 7xkk - ADD Vx, byte
   // Set Vx = Vx + kk.
@@ -44,11 +47,11 @@ void ADD_Vx(Machine_t* machine, Instruction_t* instruction)
   #ifdef DEBUG
   puts("ADD_Vx");
   #endif
-  (*instruction)[0] &= 0x0F;
-  machine->REGISTERS[(*instruction[0])] += (*instruction)[1];
+  instruction[0] &= 0x0F;
+  machine.REGISTERS[instruction[0]] += instruction[1];
 }
 
-void LD_I(Machine_t* machine, Instruction_t* instruction)
+void LD_I()
 {
   // Annn - LD I, addr
   // Set I = nnn.
@@ -57,13 +60,13 @@ void LD_I(Machine_t* machine, Instruction_t* instruction)
   #ifdef DEBUG
   puts("LD_I");
   #endif
-  (*instruction)[0] &= 0x0F;
-  machine->I = (*instruction)[0];
-  machine->I <<= 8;
-  machine->I |= (*instruction)[1];
+  instruction[0] &= 0x0F;
+  machine.I = instruction[0];
+  machine.I <<= 8;
+  machine.I |= instruction[1];
 }
 
-void CLS(Machine_t* machine)
+void CLS()
 {
   // 00E0 - CLS
   // Clear the display.
@@ -71,7 +74,7 @@ void CLS(Machine_t* machine)
   puts("CLS");
   #endif
   #ifdef SDL
-  memset(machine->SCREEN->pixels, 0x00, SCREEN_REGISTER_COUNT);
+  memset(machine.SCREEN->pixels, 0x00, SCREEN_REGISTER_COUNT);
   #elif defined(APPLE2)
 
   char *one = (char *)0x400;
@@ -106,7 +109,7 @@ void CLS(Machine_t* machine)
   #endif
 }
 
-void RET(Machine_t* machine)
+void RET()
 {
   // 00EE - RET
   // Return from a subroutine.
@@ -116,40 +119,40 @@ void RET(Machine_t* machine)
   #ifdef DEBUG
   puts("RET");
   #endif
-  machine->PC = machine->STACK[machine->SP - 1];
-  machine->SP -= 1;
+  machine.PC = machine.STACK[machine.SP - 1];
+  machine.SP -= 1;
 }
 
-void SYS(Machine_t* machine)
+void SYS()
 {
   // 0nnn - SYS addr
   // Jump to a machine code routine at nnn.
 
   // This instruction is only used on the old computers on which Chip-8 was originally implemented. It is ignored by modern interpreters.
 
-  // noop
+  // nop
 }
 
-void decode_0x0(Machine_t* machine, Instruction_t* instruction)
+void decode_0x0()
 {
   #ifdef DEBUG
   puts ("Decode 0x0");
   #endif
-  switch((*instruction)[1])
+  switch(instruction[1])
   {
     case 0xE0:
-      CLS(machine);
+      CLS();
       break;
     case 0xEE:
-      RET(machine);
+      RET();
       break;
     default:
-      SYS(machine);
+      SYS();
       break;
   }
 }
 
-void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
+void DRW_VX_VY()
 {
   // Dxyn - DRW Vx, Vy, nibble
   // Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision.
@@ -165,25 +168,25 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
 
 
   #ifdef SDL
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  uint8_t Vy = ((*instruction)[1] & 0xF0) >> 4;
-  uint8_t N = (*instruction)[1] & 0x0F;
+  uint8_t Vx = instruction[0] & 0x0F;
+  uint8_t Vy = (instruction[1] & 0xF0) >> 4;
+  uint8_t N = instruction[1] & 0x0F;
 
-  uint8_t x = machine->REGISTERS[Vx] & 63;
-  uint8_t y = machine->REGISTERS[Vy] & 31;
+  uint8_t x = machine.REGISTERS[Vx] & 63;
+  uint8_t y = machine.REGISTERS[Vy] & 31;
 
   // set VF to 0
-  machine->REGISTERS[0xF] = 0;
+  machine.REGISTERS[0xF] = 0;
 
   #ifdef DEBUG
   printf("DRW_VX_VY\n");
   printf("N: %i\n", N);
-  printf("I: %04x\n", machine->I);
-  printf("I contents: %02x\n", machine->MEMORY[machine->I]);
+  printf("I: %04x\n", machine.I);
+  printf("I contents: %02x\n", machine.MEMORY[machine.I]);
   // Reading sprite from memory for logging purposes
   for(int i = 0; i < N; i++)
   {
-    printf("  %02x\n", machine->MEMORY[machine->I + i]);
+    printf("  %02x\n", machine.MEMORY[machine.I + i]);
   }
   printf("\n");
   #endif
@@ -194,7 +197,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   {
     uint8_t y_mem_offset = (y + i) * 64 / 8;
     uint8_t mem_offset = x_mem_offset + y_mem_offset;
-    uint8_t sprite_word = machine->MEMORY[machine->I + i];
+    uint8_t sprite_word = machine.MEMORY[machine.I + i];
 
     #ifdef DEBUG
       printf("Sprite word: %02x\n", sprite_word);
@@ -202,25 +205,25 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
 
     if(shift_offset == 0)
     {
-      if(machine->REGISTERS[0xF] == 0)
+      if(machine.REGISTERS[0xF] == 0)
       {
-        int mask_res = sprite_word & ((uint8_t*)machine->SCREEN->pixels)[mem_offset];
-        if(mask_res != 0){ machine->REGISTERS[0xF] = 1; }
+        int mask_res = sprite_word & ((uint8_t*)machine.SCREEN->pixels)[mem_offset];
+        if(mask_res != 0){ machine.REGISTERS[0xF] = 1; }
       }
-      ((uint8_t*)machine->SCREEN->pixels)[mem_offset] ^= sprite_word;
+      ((uint8_t*)machine.SCREEN->pixels)[mem_offset] ^= sprite_word;
     }else{
       uint8_t left_mask = sprite_word >> shift_offset;
       uint8_t right_mask = sprite_word << (8 - shift_offset);
 
       if(x > 55){ right_mask = 0; }
-      if(machine->REGISTERS[0xF] == 0)
+      if(machine.REGISTERS[0xF] == 0)
       {
-        uint8_t left_mask_res = left_mask & (((uint8_t*)machine->SCREEN->pixels)[mem_offset] >> shift_offset);
-        uint8_t right_mask_res = right_mask & (((uint8_t*)machine->SCREEN->pixels)[mem_offset + 1] << (8 - shift_offset));
-        if((left_mask_res | right_mask_res) != 0){ machine->REGISTERS[0xF] = 1; }
+        uint8_t left_mask_res = left_mask & (((uint8_t*)machine.SCREEN->pixels)[mem_offset] >> shift_offset);
+        uint8_t right_mask_res = right_mask & (((uint8_t*)machine.SCREEN->pixels)[mem_offset + 1] << (8 - shift_offset));
+        if((left_mask_res | right_mask_res) != 0){ machine.REGISTERS[0xF] = 1; }
       }
-      ((uint8_t*)machine->SCREEN->pixels)[mem_offset] ^= left_mask;
-      ((uint8_t*)machine->SCREEN->pixels)[mem_offset + 1] ^= right_mask;
+      ((uint8_t*)machine.SCREEN->pixels)[mem_offset] ^= left_mask;
+      ((uint8_t*)machine.SCREEN->pixels)[mem_offset + 1] ^= right_mask;
     }
   }
   #elif defined(APPLE2)
@@ -259,17 +262,17 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
     bool screen_nibble_high;
     bool page2_flag;
 
-    uint8_t Vx = (*instruction)[0] & 0x0F;
-    uint8_t Vy = ((*instruction)[1] & 0xF0) >> 4;
-    uint8_t N = (*instruction)[1] & 0x0F;
-    uint8_t I = machine->I;
+    uint8_t Vx = instruction[0] & 0x0F;
+    uint8_t Vy = (instruction[1] & 0xF0) >> 4;
+    uint8_t N = instruction[1] & 0x0F;
+    uint8_t I = machine.I;
 
-    uint8_t x = machine->REGISTERS[Vx] & 63;
-    uint8_t y = machine->REGISTERS[Vy] & 31;
+    uint8_t x = machine.REGISTERS[Vx] & 63;
+    uint8_t y = machine.REGISTERS[Vy] & 31;
 
 
     // set VF to 0
-    machine->REGISTERS[0xF] = 0;
+    machine.REGISTERS[0xF] = 0;
 
     // Pad for //e screen
     x += 8;
@@ -292,7 +295,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
     {
       // each i is a row
       // Im going to have to change high or low nibble based on the value of i
-      sprite_word = machine->MEMORY[machine->I + i];
+      sprite_word = machine.MEMORY[machine.I + i];
       sprite_mask = 128;
       // Write each bit in sprite word to //e screen memory
       for(j = 0; j < 8; j++)
@@ -334,9 +337,9 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
         address_to_write = (uint8_t*)(y_mem_base + x_mem_offset);
 
         // Check if VF is set
-        if(machine->REGISTERS[0xF] == 0 && (*address_to_write & val_to_write) != 0)
+        if(machine.REGISTERS[0xF] == 0 && (*address_to_write & val_to_write) != 0)
         {
-          machine->REGISTERS[0xF] = 1;
+          machine.REGISTERS[0xF] = 1;
         }
 
         *address_to_write ^= val_to_write;
@@ -354,7 +357,7 @@ void DRW_VX_VY(Machine_t* machine, Instruction_t* instruction)
   #endif
 }
 
-void CALL(Machine_t* machine, Instruction_t* instruction)
+void CALL()
 {
   // 2nnn - CALL addr
   // Call subroutine at nnn.
@@ -362,24 +365,24 @@ void CALL(Machine_t* machine, Instruction_t* instruction)
 
   // The interpreter increments the stack pointer, then puts the current PC on the top of the stack. The PC is then set to nnn.
 
-  machine->STACK[machine->SP] = machine->PC;
-  machine->SP += 1;
-  machine->PC = (*instruction)[0] & 0x0F;
-  machine->PC <<= 8;
-  machine->PC |= (*instruction)[1];
+  machine.STACK[machine.SP] = machine.PC;
+  machine.SP += 1;
+  machine.PC = instruction[0] & 0x0F;
+  machine.PC <<= 8;
+  machine.PC |= instruction[1];
 }
 
-void LD_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+void LD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
   // 8xy0 - LD Vx, Vy
   // Set Vx = Vy.
 
   // Stores the value of register Vy in register Vx.
 
-  machine->REGISTERS[Vx] = machine->REGISTERS[Vy];
+  machine.REGISTERS[Vx] = machine.REGISTERS[Vy];
 }
 
-void OR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+void OR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
   // 8xy1 - OR Vx, Vy
   // Set Vx = Vx OR Vy.
@@ -388,10 +391,10 @@ void OR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
   // corrseponding bits from two values, and if either bit is 1, then the same bit in the result is also 1.
   // Otherwise, it is 0.
 
-  machine->REGISTERS[Vx] |= machine->REGISTERS[Vy];
+  machine.REGISTERS[Vx] |= machine.REGISTERS[Vy];
 }
 
-void AND_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+void AND_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
   // 8xy2 - AND Vx, Vy
   // Set Vx = Vx AND Vy.
@@ -400,10 +403,10 @@ void AND_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
   // corrseponding bits from two values, and if both bits are 1, then the same bit in the result is also 1.
   // Otherwise, it is 0.
 
-  machine->REGISTERS[Vx] &= machine->REGISTERS[Vy];
+  machine.REGISTERS[Vx] &= machine.REGISTERS[Vy];
 }
 
-void XOR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+void XOR_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
   // 8xy3 - XOR Vx, Vy
   // Set Vx = Vx XOR Vy.
@@ -412,10 +415,10 @@ void XOR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
   // corrseponding bits from two values, and if the bits are not both the same, then the corresponding bit in the result is set to 1.
   // Otherwise, it is 0.
 
-  machine->REGISTERS[Vx] ^= machine->REGISTERS[Vy];
+  machine.REGISTERS[Vx] ^= machine.REGISTERS[Vy];
 }
 
-void ADD_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+void ADD_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
   // 8xy4 - ADD Vx, Vy
   // Set Vx = Vx + Vy, set VF = carry.
@@ -424,32 +427,32 @@ void ADD_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
   // Only the lowest 8 bits of the result are kept, and stored in Vx.
 
   // Must do some trickery because C integers "roll over"
-  uint16_t result = machine->REGISTERS[Vx] + machine->REGISTERS[Vy];
+  uint16_t result = machine.REGISTERS[Vx] + machine.REGISTERS[Vy];
   if(result >> 8 > 0)
   {
-    machine->REGISTERS[0xF] = 1;
+    machine.REGISTERS[0xF] = 1;
   }else{
-    machine->REGISTERS[0xF] = 0;
+    machine.REGISTERS[0xF] = 0;
   }
-  machine->REGISTERS[Vx] = (uint8_t)(result & 0xFF);
+  machine.REGISTERS[Vx] = (uint8_t)(result & 0xFF);
 }
 
-void SUB_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+void SUB_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
   // 8xy5 - SUB Vx, Vy
   // Set Vx = Vx - Vy, set VF = NOT borrow.
 
   // If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
-  if(machine->REGISTERS[Vx] > machine->REGISTERS[Vy])
+  if(machine.REGISTERS[Vx] > machine.REGISTERS[Vy])
   {
-    machine->REGISTERS[0xF] = 1;
+    machine.REGISTERS[0xF] = 1;
   }else{
-    machine->REGISTERS[0xF] = 0;
+    machine.REGISTERS[0xF] = 0;
   }
-  machine->REGISTERS[Vx] -= machine->REGISTERS[Vy];
+  machine.REGISTERS[Vx] -= machine.REGISTERS[Vy];
 }
 
-void SUBN_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
+void SUBN_Vx_Vy(uint8_t Vx, uint8_t Vy)
 {
   // 8xy7 - SUBN Vx, Vy
   // Set Vx = Vy - Vx, set VF = NOT borrow.
@@ -457,17 +460,17 @@ void SUBN_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy)
   // If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy,
   // and the results stored in Vx.
 
-  if(machine->REGISTERS[Vy] > machine->REGISTERS[Vx])
+  if(machine.REGISTERS[Vy] > machine.REGISTERS[Vx])
   {
-    machine->REGISTERS[0xF] = 0x01;
+    machine.REGISTERS[0xF] = 0x01;
   }else{
-    machine->REGISTERS[0xF] = 0x00;
+    machine.REGISTERS[0xF] = 0x00;
   }
 
-  machine->REGISTERS[Vx] = machine->REGISTERS[Vy] - machine->REGISTERS[Vx];
+  machine.REGISTERS[Vx] = machine.REGISTERS[Vy] - machine.REGISTERS[Vx];
 }
 
-void SHR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy){
+void SHR_Vx_Vy(uint8_t Vx, uint8_t Vy){
   // This honors the original CHIP-8 spec.
   // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
 
@@ -477,16 +480,16 @@ void SHR_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy){
   // First put the value in Vy in Vx.
   // If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
 
-  machine->REGISTERS[Vx]= machine->REGISTERS[Vy];
-  if((machine->REGISTERS[Vx] & 1) > 0){
-    machine->REGISTERS[0xF] = 1;
+  machine.REGISTERS[Vx]= machine.REGISTERS[Vy];
+  if((machine.REGISTERS[Vx] & 1) > 0){
+    machine.REGISTERS[0xF] = 1;
   }else{
-    machine->REGISTERS[0xF] = 0;
+    machine.REGISTERS[0xF] = 0;
   }
-  machine->REGISTERS[Vx] >>= 1;
+  machine.REGISTERS[Vx] >>= 1;
 }
 
-void SHL_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy){
+void SHL_Vx_Vy(uint8_t Vx, uint8_t Vy){
   // This honors the original CHIP-8 spec.
   // NOT COMPATIBLE WITH CHIP-48 OR SUPER-CHIP
 
@@ -496,126 +499,126 @@ void SHL_Vx_Vy(Machine_t* machine, uint8_t Vx, uint8_t Vy){
   // First put the value in Vy in Vx.
   // If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
 
-  machine->REGISTERS[Vx]= machine->REGISTERS[Vy];
-  if((machine->REGISTERS[Vx] & 0x80) > 0){
-    machine->REGISTERS[0xF] = 1;
+  machine.REGISTERS[Vx]= machine.REGISTERS[Vy];
+  if((machine.REGISTERS[Vx] & 0x80) > 0){
+    machine.REGISTERS[0xF] = 1;
   }else{
-    machine->REGISTERS[0xF] = 0;
+    machine.REGISTERS[0xF] = 0;
   }
-  machine->REGISTERS[Vx] &= 0x7f; // Clear MSB to prevent overflow/"roll over" behavior
-  machine->REGISTERS[Vx] <<= 1;
+  machine.REGISTERS[Vx] &= 0x7f; // Clear MSB to prevent overflow/"roll over" behavior
+  machine.REGISTERS[Vx] <<= 1;
 }
 
-void decode_ALU(Machine_t* machine, Instruction_t* instruction)
+void decode_ALU()
 {
   uint8_t Vx, Vy, low_nibble;
 
-  low_nibble = (*instruction)[1] & 0xF;
-  Vx = (*instruction)[0] & 0xF;
-  Vy = ((*instruction)[1] & 0xF0) >> 4;
+  low_nibble = instruction[1] & 0xF;
+  Vx = instruction[0] & 0xF;
+  Vy = (instruction[1] & 0xF0) >> 4;
 
   switch(low_nibble)
   {
     case 0x0:
-      LD_Vx_Vy(machine, Vx, Vy);
+      LD_Vx_Vy(Vx, Vy);
       break;
     case 0x1:
-      OR_Vx_Vy(machine, Vx, Vy);
+      OR_Vx_Vy(Vx, Vy);
       break;
     case 0x2:
-      AND_Vx_Vy(machine, Vx, Vy);
+      AND_Vx_Vy(Vx, Vy);
       break;
     case 0x3:
-      XOR_Vx_Vy(machine, Vx, Vy);
+      XOR_Vx_Vy(Vx, Vy);
       break;
     case 0x4:
-      ADD_Vx_Vy(machine, Vx, Vy);
+      ADD_Vx_Vy(Vx, Vy);
       break;
     case 0x5:
-      SUB_Vx_Vy(machine, Vx, Vy);
+      SUB_Vx_Vy(Vx, Vy);
       break;
     case 0x6:
-      SHR_Vx_Vy(machine, Vx, Vy);
+      SHR_Vx_Vy(Vx, Vy);
       break;
     case 0x7:
-      SUBN_Vx_Vy(machine, Vx, Vy);
+      SUBN_Vx_Vy(Vx, Vy);
       break;
     case 0xe:
-      SHL_Vx_Vy(machine, Vx, Vy);
+      SHL_Vx_Vy(Vx, Vy);
       break;
   }
 }
 
-void SE_Vx(Machine_t* machine, Instruction_t* instruction)
+void SE_Vx()
 {
   // 3xkk - SE Vx, byte
   // Skip next instruction if Vx = kk.
 
   // The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
 
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  if(machine->REGISTERS[Vx] == (*instruction)[1])
+  uint8_t Vx = instruction[0] & 0x0F;
+  if(machine.REGISTERS[Vx] == instruction[1])
   {
-    machine->PC += 2;
+    machine.PC += 2;
   }
 }
 
-void SNE_Vx(Machine_t* machine, Instruction_t* instruction)
+void SNE_Vx()
 {
   // 4xkk - SNE Vx, byte
   // Skip next instruction if Vx != kk.
 
   // The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
 
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  if(machine->REGISTERS[Vx] != (*instruction)[1])
+  uint8_t Vx = instruction[0] & 0x0F;
+  if(machine.REGISTERS[Vx] != instruction[1])
   {
-    machine->PC += 2;
+    machine.PC += 2;
   }
 }
 
-void SE_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
+void SE_Vx_Vy()
 {
   // 5xy0 - SE Vx, Vy
   // Skip next instruction if Vx = Vy.
 
   // The interpreter compares register Vx to register Vy, and if they are equal, increments the program counter by 2.
 
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  uint8_t Vy = (((*instruction)[1]) & 0xF0) >> 4;
-  if(machine->REGISTERS[Vx] == machine->REGISTERS[Vy])
+  uint8_t Vx = instruction[0] & 0x0F;
+  uint8_t Vy = ((instruction[1]) & 0xF0) >> 4;
+  if(machine.REGISTERS[Vx] == machine.REGISTERS[Vy])
   {
-    machine->PC += 2;
+    machine.PC += 2;
   }
 }
 
-void SNE_Vx_Vy(Machine_t* machine, Instruction_t* instruction)
+void SNE_Vx_Vy()
 {
   // 9xy0 - SNE Vx, Vy
   // Skip next instruction if Vx != Vy.
 
   // The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
 
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  uint8_t Vy = (((*instruction)[1]) & 0xF0) >> 4;
-  if(machine->REGISTERS[Vx] != machine->REGISTERS[Vy])
+  uint8_t Vx = instruction[0] & 0x0F;
+  uint8_t Vy = ((instruction[1]) & 0xF0) >> 4;
+  if(machine.REGISTERS[Vx] != machine.REGISTERS[Vy])
   {
-    machine->PC += 2;
+    machine.PC += 2;
   }
 }
 
-void JP_V0(Machine_t* machine, Instruction_t* instruction)
+void JP_V0()
 {
   // Bnnn - JP V0, addr
   // Jump to location nnn + V0.
 
   // The program counter is set to nnn plus the value of V0.
 
-  uint16_t nnn = (((*instruction)[0] & 0x0F) << 8) + (*instruction)[1];
-  machine->PC = machine->REGISTERS[0x0] + nnn;
+  uint16_t nnn = ((instruction[0] & 0x0F) << 8) + instruction[1];
+  machine.PC = machine.REGISTERS[0x0] + nnn;
 }
 
-void RND_Vx(Machine_t* machine, Instruction_t* instruction)
+void RND_Vx()
 {
   // Cxkk - RND Vx, byte
   // Set Vx = random byte AND kk.
@@ -623,65 +626,65 @@ void RND_Vx(Machine_t* machine, Instruction_t* instruction)
   // The interpreter generates a random number from 0 to 255, which is then ANDed with the value kk.
   // The results are stored in Vx. See instruction 8xy2 for more information on AND.
   uint8_t random = rand();
-  uint8_t Vx = (*instruction)[0] & 0xF;
-  machine->REGISTERS[Vx] = random & (*instruction)[1];
+  uint8_t Vx = instruction[0] & 0xF;
+  machine.REGISTERS[Vx] = random & instruction[1];
 }
 
-void LD_Vx_DT(Machine_t* machine, Instruction_t* instruction)
+void LD_Vx_DT()
 {
   // Fx07 - LD Vx, DT
   // Set Vx = delay timer value.
 
   // The value of DT is placed into Vx.
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  machine->REGISTERS[Vx] = machine->DELAY_TIMER;
+  uint8_t Vx = instruction[0] & 0x0F;
+  machine.REGISTERS[Vx] = machine.DELAY_TIMER;
 }
 
-void LD_DT_Vx(Machine_t* machine, Instruction_t* instruction)
+void LD_DT_Vx()
 {
   // Fx15 - LD DT, Vx
   // Set delay timer = Vx.
 
   // DT is set equal to the value of Vx.
 
-  uint8_t Vx = (*instruction)[0] & 0xF;
-  machine->DELAY_TIMER = machine->REGISTERS[Vx];
+  uint8_t Vx = instruction[0] & 0xF;
+  machine.DELAY_TIMER = machine.REGISTERS[Vx];
 }
 
-void LD_ST_Vx(Machine_t* machine, Instruction_t* instruction)
+void LD_ST_Vx()
 {
   // Fx18 - LD ST, Vx
   // Set sound timer = Vx.
 
   // ST is set equal to the value of Vx.
 
-  uint8_t Vx = (*instruction)[0] & 0xF;
-  machine->SOUND_TIMER = machine->REGISTERS[Vx];
+  uint8_t Vx = instruction[0] & 0xF;
+  machine.SOUND_TIMER = machine.REGISTERS[Vx];
 }
 
-void ADD_I_Vx(Machine_t* machine, Instruction_t* instruction)
+void ADD_I_Vx()
 {
   // Fx1E - ADD I, Vx
   // Set I = I + Vx.
 
   // The values of I and Vx are added, and the results are stored in I.
 
-  uint8_t Vx = (*instruction)[0] & 0xF;
-  machine->I += machine->REGISTERS[Vx];
+  uint8_t Vx = instruction[0] & 0xF;
+  machine.I += machine.REGISTERS[Vx];
 }
 
-void LD_F_Vx(Machine_t* machine, Instruction_t* instruction)
+void LD_F_Vx()
 {
   // Fx29 - LD F, Vx
   // Set I = location of sprite for digit Vx.
 
   // The value of I is set to the location for the hexadecimal sprite corresponding to the value of Vx.
 
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  machine->I = FONT_BASE + (machine->REGISTERS[Vx] & 0x0F);
+  uint8_t Vx = instruction[0] & 0x0F;
+  machine.I = FONT_BASE + (machine.REGISTERS[Vx] & 0x0F);
 }
 
-void LD_B_Vx(Machine_t* machine, Instruction_t* instruction)
+void LD_B_Vx()
 {
   // Fx33 - LD B, Vx
   // Store BCD representation of Vx in memory locations I, I+1, and I+2.
@@ -689,19 +692,19 @@ void LD_B_Vx(Machine_t* machine, Instruction_t* instruction)
   // The interpreter takes the decimal value of Vx, and places the hundreds digit in memory at location in I,
   // the tens digit at location I+1, and the ones digit at location I+2.
 
-  uint8_t Vx = (*instruction)[0] & 0x0F;
-  uint8_t val = machine->REGISTERS[Vx];
+  uint8_t Vx = instruction[0] & 0x0F;
+  uint8_t val = machine.REGISTERS[Vx];
 
   uint8_t ones = val % 10;
   uint8_t tens = ((val % 100) - ones) / 10;
   uint8_t hundreds = (val - (tens + ones)) / 100;
 
-  machine->MEMORY[machine->I] = hundreds;
-  machine->MEMORY[machine->I + 1] = tens;
-  machine->MEMORY[machine->I + 2] = ones;
+  machine.MEMORY[machine.I] = hundreds;
+  machine.MEMORY[machine.I + 1] = tens;
+  machine.MEMORY[machine.I + 2] = ones;
 }
 
-void LD_I_Vx(Machine_t* machine, Instruction_t* instruction)
+void LD_I_Vx()
 {
   // Fx55 - LD [I], Vx
   // Store registers V0 through Vx in memory starting at location I.
@@ -709,14 +712,14 @@ void LD_I_Vx(Machine_t* machine, Instruction_t* instruction)
   // The interpreter copies the values of registers V0 through Vx into memory,
   // starting at the address in I.
   uint8_t i = 0;
-  uint8_t Vx = (*instruction)[0] & 0x0F;
+  uint8_t Vx = instruction[0] & 0x0F;
   for(; i <= Vx; ++i)
   {
-    machine->MEMORY[machine->I + i] = machine->REGISTERS[i];
+    machine.MEMORY[machine.I + i] = machine.REGISTERS[i];
   }
 }
 
-void LD_Vx_I(Machine_t* machine, Instruction_t* instruction)
+void LD_Vx_I()
 {
   // Fx65 - LD Vx, [I]
   // Read registers V0 through Vx from memory starting at location I.
@@ -724,16 +727,16 @@ void LD_Vx_I(Machine_t* machine, Instruction_t* instruction)
   // The interpreter reads values from memory starting at location I into registers V0 through Vx.
 
   uint8_t i = 0;
-  // uint8_t Vx = (*instruction)[0] & 0xF;
-  uint8_t Vx = **instruction & 0xF;
+  // uint8_t Vx = instruction[0] & 0xF;
+  uint8_t Vx = instruction[0] & 0xF;
 
   for(; i <= Vx; ++i)
   {
-    machine->REGISTERS[i] = machine->MEMORY[machine->I + i];
+    machine.REGISTERS[i] = machine.MEMORY[machine.I + i];
   }
 }
 
-void LD_Vx_K(Machine_t* machine, Instruction_t* instruction)
+void LD_Vx_K()
 {
   // Fx0A - LD Vx, K
   // Wait for a key press, store the value of the key in Vx.
@@ -741,151 +744,151 @@ void LD_Vx_K(Machine_t* machine, Instruction_t* instruction)
   // All execution stops until a key is pressed, then the value of that key is stored in Vx.
   char ch;
   bool quit = false;
-  uint8_t Vx = (*instruction)[0] & 0xF;
+  uint8_t Vx = instruction[0] & 0xF;
   #ifdef APPLE2
   while((128 & *KEY_DATA) == 0){
     ch = *KEY_DATA & 127;
   }
   *CLEAR_KEY_STROBE = -1;
-  machine->REGISTERS[Vx] = char_to_hex(ch);
+  machine.REGISTERS[Vx] = char_to_hex(ch);
   #endif
 }
 
-void SKP_Vx(Machine_t* machine, Instruction_t* instruction)
+void SKP_Vx()
 {
   // Ex9E - SKP Vx
   // Skip next instruction if key with the value of Vx is pressed.
 
   // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the down position, PC is increased by 2.
 
-  uint8_t Vx = (*instruction)[0] & 0xF;
+  uint8_t Vx = instruction[0] & 0xF;
   #ifdef APPLE2
-  machine->KEY = read_char();
-  if(machine->KEY == machine->REGISTERS[Vx]){
-    machine->PC += 2;
+  machine.KEY = read_char();
+  if(machine.KEY == machine.REGISTERS[Vx]){
+    machine.PC += 2;
   }
   #endif
 }
 
-void SKNP_Vx(Machine_t* machine, Instruction_t* instruction)
+void SKNP_Vx()
 {
   // ExA1 - SKNP Vx
   // Skip next instruction if key with the value of Vx is not pressed.
 
   // Checks the keyboard, and if the key corresponding to the value of Vx is currently in the up position, PC is increased by 2.
 
-  uint8_t Vx = (*instruction)[0] & 0xF;
+  uint8_t Vx = instruction[0] & 0xF;
   #ifdef APPLE2
-  machine->KEY = read_char();
-  if(machine->KEY != machine->REGISTERS[Vx]){
-    machine->PC += 2;
+  machine.KEY = read_char();
+  if(machine.KEY != machine.REGISTERS[Vx]){
+    machine.PC += 2;
   }
   #endif`
 }
 
-void decode_0xF(Machine_t* machine, Instruction_t* instruction)
+void decode_0xF()
 {
-  switch((*instruction)[1])
+  switch(instruction[1])
   {
     case 0x07:
-      LD_Vx_DT(machine, instruction);
+      LD_Vx_DT();
       break;
     case 0x15:
-      LD_DT_Vx(machine, instruction);
+      LD_DT_Vx();
       break;
     case 0x18:
-      LD_ST_Vx(machine, instruction);
+      LD_ST_Vx();
       break;
     case 0x1E:
-      ADD_I_Vx(machine, instruction);
+      ADD_I_Vx();
       break;
     case 0x29:
-      LD_F_Vx(machine, instruction);
+      LD_F_Vx();
       break;
     case 0x33:
-      LD_B_Vx(machine, instruction);
+      LD_B_Vx();
       break;
     case 0x55:
-      LD_I_Vx(machine, instruction);
+      LD_I_Vx();
       break;
     case 0x65:
-      LD_Vx_I(machine, instruction);
+      LD_Vx_I();
       break;
     case 0x0A:
-      LD_Vx_K(machine, instruction);
+      LD_Vx_K();
   }
 }
 
-void decode_0xE(Machine_t* machine, Instruction_t* instruction)
+void decode_0xE()
 {
-  switch((*instruction)[1])
+  switch(instruction[1])
   {
     case 0x9E:
-      SKP_Vx(machine, instruction);
+      SKP_Vx();
       break;
     case 0xA1:
-      SKNP_Vx(machine, instruction);
+      SKNP_Vx();
       break;
   }
 }
 
-void decode(Machine_t* machine, Instruction_t* instruction)
+void decode()
 {
   #ifdef DEBUG
     puts("Decoding:");
-    printf("PC: %04x\n", machine->PC);
-    printf("Instruction: %02x%02x\n", (*instruction)[0], (*instruction)[1]);
+    printf("PC: %04x\n", machine.PC);
+    printf("Instruction: %02x%02x\n", instruction[0], instruction[1]);
   #endif
-  uint8_t first_nibble = (*instruction)[0] >> 4;
+  uint8_t first_nibble = instruction[0] >> 4;
   switch(first_nibble)
   {
     case 0x0:
-      decode_0x0(machine, instruction);
+      decode_0x0();
       break;
     case 0x1:
-      JP(machine, instruction);
+      JP();
       break;
     case 0x2:
-      CALL(machine, instruction);
+      CALL();
       break;
     case 0x3:
-      SE_Vx(machine, instruction);
+      SE_Vx();
       break;
     case 0x4:
-      SNE_Vx(machine, instruction);
+      SNE_Vx();
       break;
     case 0x5:
-      SE_Vx_Vy(machine, instruction);
+      SE_Vx_Vy();
       break;
     case 0x6:
-      LD_Vx(machine, instruction);
+      LD_Vx();
       break;
     case 0x7:
-      ADD_Vx(machine, instruction);
+      ADD_Vx();
       break;
     case 0x8:
-      decode_ALU(machine, instruction);
+      decode_ALU();
       break;
     case 0x9:
-      SNE_Vx_Vy(machine, instruction);
+      SNE_Vx_Vy();
       break;
     case 0xA:
-      LD_I(machine, instruction);
+      LD_I();
       break;
     case 0xB:
-      JP_V0(machine, instruction);
+      JP_V0();
       break;
     case 0xC:
-      RND_Vx(machine, instruction);
+      RND_Vx();
       break;
     case 0xD:
-      DRW_VX_VY(machine, instruction);
+      DRW_VX_VY();
       break;
     case 0xF:
-      decode_0xF(machine, instruction);
+      decode_0xF();
       break;
     case 0xE:
-      decode_0xE(machine, instruction);
+      decode_0xE();
       break;
   }
 

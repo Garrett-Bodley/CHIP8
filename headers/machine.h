@@ -35,14 +35,14 @@ struct Machine_s {
 
 typedef struct Machine_s Machine_t;
 
-void load_file(char* path, Machine_t* machine);
+void load_file(char* path);
 
-void clear_machine(Machine_t* machine);
+void clear_machine();
 
-void load_font(Machine_t* machine);
+void load_font();
 
-void fetch(Machine_t* machine, Instruction_t* instruction);
+void fetch();
 
-void sys_init(Machine_t* machine);
+void sys_init();
 
 #endif

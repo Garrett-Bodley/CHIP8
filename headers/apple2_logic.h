@@ -1,6 +1,7 @@
+#include <stdbool.h>
+#include <stdint.h>
 #ifndef APPLE2_LOGIC_H
 #define APPLE2_LOGIC_H
-#include <stdbool.h>
 
 #define FIRST_SCREEN_THIRD 0x400
 #define SECOND_SCREEN_THIRD 0x428

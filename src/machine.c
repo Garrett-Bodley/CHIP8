@@ -9,11 +9,14 @@
 #endif
 
 
-void clear_machine(Machine_t* machine){
-  memset(machine, 0, sizeof(Machine_t));
+extern Machine_t machine;
+extern Instruction_t instruction;
+
+void clear_machine(){
+  memset(&machine, 0, sizeof(Machine_t));
 }
 
-void load_file(char* path, Machine_t* machine)
+void load_file(char* path)
 {
   #ifdef SDL
   FILE *file;
@@ -36,7 +39,7 @@ void load_file(char* path, Machine_t* machine)
   }
 
   rewind(file);
-  uint8_t* start_position = machine->MEMORY + ROM_BASE;
+  uint8_t* start_position = machine.MEMORY + ROM_BASE;
 
   size_t bytes_read = fread(start_position, sizeof(uint8_t), file_size, file);
   if(bytes_read != file_size)
@@ -49,12 +52,12 @@ void load_file(char* path, Machine_t* machine)
   fclose(file);
   #elif defined(APPLE2)
     // rom and rom_size are extern values found in apple_rom.c
-    uint8_t* start_position = machine->MEMORY + ROM_BASE;
+    uint8_t* start_position = machine.MEMORY + ROM_BASE;
     memcpy(start_position, &rom, rom_size);
   #endif
 }
 
-void load_font(Machine_t* machine)
+void load_font()
 {
   int i;
   uint8_t FONT[80] = {
@@ -78,19 +81,19 @@ void load_font(Machine_t* machine)
 
   for(i = 0; i < 80; i++)
   {
-    machine->MEMORY[FONT_BASE + i] = FONT[i];
+    machine.MEMORY[FONT_BASE + i] = FONT[i];
   }
 }
 
-void fetch(Machine_t* machine, Instruction_t* instruction)
+void fetch()
 {
-  memcpy(instruction, &(machine->MEMORY[machine->PC]), 2);
-  machine->PC += 2;
+  memcpy(&instruction, &(machine.MEMORY[machine.PC]), 2);
+  machine.PC += 2;
 }
 
-void sys_init(Machine_t* machine)
+void sys_init()
 {
-  clear_machine(machine);
-  load_font(machine);
-  machine->PC = 0x200;
+  clear_machine();
+  load_font();
+  machine.PC = 0x200;
 }

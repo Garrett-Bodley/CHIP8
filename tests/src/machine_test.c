@@ -3,15 +3,16 @@
 #include "../../headers/instruction.h"
 #include <stddef.h>
 
-extern Machine_t machine;
+Machine_t machine;
+Instruction_t instruction;
 
-void log_memory_test(Machine_t* machine)
+void log_memory_test()
 {
   for(int i = 0; i < MEM_SIZE; i++)
   {
     if(i % 16 == 0 && i > 0){ printf("\n"); }
     if(i % 16 == 0){ printf("%04x  ", i); }
-    printf("%02x " , machine->MEMORY[i]);
+    printf("%02x " , machine.MEMORY[i]);
     if(i % 16 == 7){ printf(" "); }
   }
   printf("\n");
@@ -46,7 +47,7 @@ Test(Machine, Init)
 
 Test(Machine, Load_File)
 {
-  clear_machine(&machine);
+  clear_machine();
 
   size_t rom_size = 132;
   uint8_t IBM_ROM[] = {
@@ -60,7 +61,7 @@ Test(Machine, Load_File)
     0xf3, 0x00, 0xe3, 0x00, 0x43, 0xe0, 0x00, 0xe0, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80,
     0x00, 0xe0, 0x00, 0xe0
   };
-  load_file("./ROMs/IBM.ch8", &machine);
+  load_file("./ROMs/IBM.ch8");
 
   uint8_t* mem_bytes = (uint8_t*)&machine.MEMORY;
   for(int i = 0; i < rom_size; i++){
@@ -72,8 +73,8 @@ Test(Machine, Load_File)
 
 Test(Machine, Load_Font)
 {
-  clear_machine(&machine);
-  load_font(&machine);
+  clear_machine();
+  load_font();
 
     uint8_t FONT[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -104,12 +105,11 @@ Test(Machine, Load_Font)
 
 Test(Machine, Fetch)
 {
-  sys_init(&machine);
+  sys_init();
   machine.MEMORY[0x200] = 0xAB;
   machine.MEMORY[0x201] = 0xCD;
-  Instruction_t instruction;
 
-  fetch(&machine, &instruction);
+  fetch();
   cr_expect(instruction[0] == 0xAB, "Expected the first byte of the fetched instruction to be 0xAB, got 0x%02X instead.", instruction[0]);
   cr_expect(instruction[1] == 0xCD, "Expected the second byte of the fetched instruction to be 0xCD, got 0x%02X instead.", instruction[1]);
   cr_expect(machine.PC == 0x202, "Expected SP to be 0x202, got %30X instead.", machine.SP);
@@ -117,13 +117,12 @@ Test(Machine, Fetch)
 
 Test(Machine, SP_Fetch)
 {
-  sys_init(&machine);
+  sys_init();
   machine.MEMORY[0x300] = 0xAB;
   machine.MEMORY[0x301] = 0xCD;
-  Instruction_t instruction;
   machine.PC = 0x300;
 
-  fetch(&machine, &instruction);
+  fetch();
   cr_expect(instruction[0] == 0xAB, "Expected the first byte of the fetched instruction to be 0xAB, got 0x%02X instead.", instruction[0]);
   cr_expect(instruction[1] == 0xCD, "Expected the second byte of the fetched instruction to be 0xCD, got 0x%02X instead.", instruction[1]);
   cr_expect(machine.PC == 0x302, "Expected SP to be 0x202, got %30X instead.", machine.SP);
@@ -131,7 +130,7 @@ Test(Machine, SP_Fetch)
 
 Test(Machine, ROM_Fetch)
 {
-  sys_init(&machine);
+  sys_init();
   size_t rom_size = 132;
   uint8_t IBM_ROM[] = {
     0x00, 0xe0, 0xa2, 0x2a, 0x60, 0x0c, 0x61, 0x08, 0xd0, 0x1f, 0x70, 0x09, 0xa2, 0x39, 0xd0, 0x1f,
@@ -144,13 +143,11 @@ Test(Machine, ROM_Fetch)
     0xf3, 0x00, 0xe3, 0x00, 0x43, 0xe0, 0x00, 0xe0, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80,
     0x00, 0xe0, 0x00, 0xe0
   };
-  load_file("./ROMs/IBM.ch8", &machine);
-
-  Instruction_t instruction;
+  load_file("./ROMs/IBM.ch8");
 
   for(int i = 0; i < rom_size; i += 2)
   {
-    fetch(&machine, &instruction);
+    fetch();
     cr_expect(instruction[0] == IBM_ROM[i] && instruction[1] == IBM_ROM[i + 1], "ROM fetch error at byte %d: expected 0x%02X%02X, got 0x%02X%02X.", i, IBM_ROM[i], IBM_ROM[i + 1], instruction[0], instruction[1]);
   }
 }

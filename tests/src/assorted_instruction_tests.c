@@ -4,14 +4,14 @@
 #include "../../headers/instruction.h"
 #include "../../headers/decode.h"
 
-extern Machine_t machine;
-extern Instruction_t instruction;
+Machine_t machine;
+Instruction_t instruction;
 
 // Other Instruction tests
 
 void setup(void)
 {
-  sys_init(&machine);
+  sys_init();
 }
 
 Test(Assorted, CALL)
@@ -23,7 +23,7 @@ Test(Assorted, CALL)
   int old_SP = machine.SP;
   int old_PC = machine.PC;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.SP == old_SP + 1, "Expected SP to be incremented");
   cr_expect(machine.STACK[machine.SP - 1] == old_PC, "Expected STACK[SP - 1] to be old PC value");
@@ -42,15 +42,15 @@ Test(Assorted, SE_Vx)
   machine.REGISTERS[0x0] = 0xFF;
   machine.PC = 0x00;
 
-  decode(&machine, &instruction);
+  decode();
 
-  cr_expect(machine.PC == 0x02, "Expected PC to be 0x02, found %02x", machine.PC);
+  cr_expect(machine.PC == 0x02, "Expected PC to be 0x02, found 0x%02x", machine.PC);
 
   instruction[0] = 0x3A;
   instruction[1] = 0x42;
   machine.REGISTERS[0xA] = 0x42;
   machine.PC = 0x04;
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x06, "Expected PC to be 0x06, found %02x", machine.PC);
 
@@ -74,7 +74,7 @@ Test(Assorted, SNE_Vx)
   machine.PC = 0x00;
   machine.REGISTERS[0x0] = 0x42;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x02, "Expected PC to be set to 0x02, found 0x%02x", machine.PC);
 
@@ -83,7 +83,7 @@ Test(Assorted, SNE_Vx)
   machine.PC = 0x00;
   machine.REGISTERS[0x1] = 0xFF;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x00, found 0x%02x", machine.PC);
 }
@@ -101,7 +101,7 @@ Test(Assorted, SE_Vx_Vy)
   machine.REGISTERS[0x0] = 0x42;
   machine.REGISTERS[0x1] = 0x42;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x02, "Expected PC to be set to 0x02, got 0x%02x", machine.PC);
 
@@ -127,7 +127,7 @@ Test(Assorted, SNE_Vx_Vy)
   machine.REGISTERS[0x0] = 0x42;
   machine.REGISTERS[0x1] = 0x41;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x02, "Expected PC to be set to 0x02, found 0x%02x", machine.PC);
 
@@ -137,7 +137,7 @@ Test(Assorted, SNE_Vx_Vy)
   machine.REGISTERS[0xA] = 0x42;
   machine.REGISTERS[0xB] = 0x42;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x00, "Expected PC to be set to 0x00, found 0x%02x", machine.PC);
 }
@@ -154,7 +154,7 @@ Test(Assorted, JP_V0)
   machine.REGISTERS[0x0] = 0x11;
   machine.PC = 0x000;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x122, "Expected PC to be set to 0x222, found 0x%03x", machine.PC);
 
@@ -163,7 +163,7 @@ Test(Assorted, JP_V0)
   machine.REGISTERS[0x0] = 0x11;
   machine.PC = 0x000;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.PC == 0x134, "Expected PC to be set to 0x134, found 0x%03x", machine.PC);
 
@@ -182,7 +182,7 @@ Test(Assorted, RND_Vx)
   instruction[0] = 0xC0;
   instruction[1] = 0x34;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect((machine.REGISTERS[0x0] & 0x34) <= 0x34, "Expected register V0 to contain a value <= 0x34, found 0x%02x", machine.REGISTERS[0x0]);
 
@@ -199,7 +199,7 @@ Test(Assorted, LD_Vx_DT)
   instruction[1] = 0x07;
   machine.DELAY_TIMER = 0x42;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.REGISTERS[0x0] == 0x42, "Expected register V0 to contain the value 0x42, found 0x%02x", machine.REGISTERS[0x0]);
 }
@@ -216,7 +216,7 @@ Test(Assorted, LD_DT_Vx)
   machine.REGISTERS[0x0] = 0xFF;
   machine.DELAY_TIMER = 0x00;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.DELAY_TIMER == 0xFF, "Expected DELAY_TIMER to be set to 0xFF, found 0x%02x", machine.DELAY_TIMER);
 }
@@ -233,7 +233,7 @@ Test(Assorted, LD_ST_Vx)
   machine.REGISTERS[0x0] = 0xFF;
   machine.SOUND_TIMER = 0x00;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.SOUND_TIMER == 0xFF, "Expected SOUND_TIMER to be set to 0xFF, found 0x%02x", machine.SOUND_TIMER);
 }
@@ -250,7 +250,7 @@ Test(Assorted, ADD_I_Vx)
   machine.I = 0x111;
   machine.REGISTERS[0x0] = 0x22;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.I == 0x133, "Expected I to be set to 0x133, found 0x%03x", machine.I);
 }
@@ -266,7 +266,7 @@ Test(Assorted, LD_F_Vx)
   instruction[1] = 0x29;
   machine.REGISTERS[0x0] = 0x00;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.I == FONT_BASE, "Expected I to be set to 0x%02x, found 0x%02x", FONT_BASE, machine.I);
 }
@@ -284,7 +284,7 @@ Test(Assorted, LD_B_Vx)
   machine.REGISTERS[0x0] = 0x01;
   machine.I = 0xFF0;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.MEMORY[0xFF0] == 0x00, "Expected Address 0xFF0 to contain value 0x00, found 0x%02x", machine.MEMORY[0xFF0]);
   cr_expect(machine.MEMORY[0xFF1] == 0x00, "Expected Address 0xFF1 to contain value 0x00, found 0x%02x", machine.MEMORY[0xFF1]);
@@ -295,7 +295,7 @@ Test(Assorted, LD_B_Vx)
   machine.REGISTERS[0x0] = 0x0F;
   machine.I = 0xFF0;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.MEMORY[0xFF0] == 0x00, "Expected Address 0xFF0 to contain value 0x00, found 0x%02x", machine.MEMORY[0xFF0]);
   cr_expect(machine.MEMORY[0xFF1] == 0x01, "Expected Address 0xFF1 to contain value 0x01, found 0x%02x", machine.MEMORY[0xFF1]);
@@ -306,7 +306,7 @@ Test(Assorted, LD_B_Vx)
   machine.REGISTERS[0x0] = 0xFF;
   machine.I = 0xFF0;
 
-  decode(&machine, &instruction);
+  decode();
 
   cr_expect(machine.MEMORY[0xFF0] == 0x02, "Expected Address 0xFF0 to contain value 0x02, found 0x%02x", machine.MEMORY[0xFF0]);
   cr_expect(machine.MEMORY[0xFF1] == 0x05, "Expected Address 0xFF1 to contain value 0x05, found 0x%02x", machine.MEMORY[0xFF1]);
@@ -331,7 +331,7 @@ Test(Assorted, LD_I_Vx)
     machine.REGISTERS[i] = i;
   }
 
-  decode(&machine, &instruction);
+  decode();
 
   for(int i = 0; i <= 0xF; i++)
   {
@@ -354,11 +354,10 @@ Test(Assorted, LD_Vx_I)
     machine.MEMORY[machine.I + i] = i;
   }
 
-  decode(&machine, &instruction);
+  decode();
 
   for(int i = 0; i <= 0xF; i++)
   {
     cr_expect(machine.REGISTERS[i] == i, "Expected REGISTERS[0x%x] to have value 0x%x, found 0x%x", i, i, machine.REGISTERS[i]);
   }
 }
-
