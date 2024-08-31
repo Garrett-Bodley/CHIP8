@@ -91,7 +91,7 @@ wav: $(APL_TARGET).wav
 
 aif: $(APL_TARGET).aif
 
-disk: $(TARGET_DISK)
+disk: $(APL_TARGET).dsk
 
 sha-c2t:
 	sha1sum $(C2T)
@@ -160,7 +160,7 @@ $(APL_TARGET).wav: $(APL_TARGET) clean-wav
 	$(C2T) -bc8 $(APL_TARGET),$(APL_START_ADDRESS) $(APL_TARGET).wav
 
 # Rule to make disk image from apple2 binary
-$(TARGET_DISK): $(APL_TARGET)
+$(APL_TARGET).dsk: $(APL_TARGET)
 	cp $(DISK_IMG) $(TARGET_DISK)
 	@# These were used when I copied ProDOS_8.dsk over. I have since made a template that has already deleted those files.
 	@# for f in launcher sysutil fastcopy basic; do java -jar $(AC) -d $(TARGET_DISK) $$f.system; done
@@ -191,7 +191,6 @@ clean:
 	@[ -n "${OBJ_DIR}" ] || { echo "OBJ_DIR unset or null"; exit 127; }
 	@[ -n "${TEST_OBJ_DIR}" ] || { echo "TEST_OBJ_DIR unset or null"; exit 127; }
 	@[ -n "${TEST_BIN_DIR}" ] || { echo "TEST_BIN_DIR unset or null"; exit 127; }
-	@ # echo $(BIN_DIR) $(OBJ_DIR) $(TEST_OBJ_DIR) $(TEST_BIN_DIR) # For debugging purposes
 	rm -rf $(BIN_DIR) $(OBJ_DIR) $(TEST_OBJ_DIR) $(TEST_BIN_DIR)
 
 clean-test:
